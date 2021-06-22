@@ -1,5 +1,5 @@
 import networkit as nk
-
+from measures.GroupHarmonicCentrality import GroupHarmonicCentrality,FairGroupHarmonicCentrality
 
 
 class FairHarmonicCentrality:
@@ -28,7 +28,7 @@ class FairHarmonicCentrality:
             self.HC = nk.centrality.HarmonicCloseness(self.G,normalized= self.TopHarmonicCloseness['normalized'],)
         self.HC.run()
 
-    def compute_top_k_fair_group_centrality(self):
+    def computeTopKFairGroupCentrality(self):
         # Computing the fairness level of the first k
         self.S = self.HC.topkNodesList()
         # For each community, get the group centrality of each community wrt the set S
@@ -42,13 +42,30 @@ class FairHarmonicCentrality:
             else:
                 fairness.append(0)
 
-        print("Miao")
 
 
 
-G = nk.graphio.SNAPGraphReader().read("../datasets/com-youtube/com-youtube.ungraph.txt")
+G = nk.graphio.SNAPGraphReader().read("../datasets/dblp/com-dblp.ungraph.txt")
+communities = []
+with open("../datasets/dblp/com-dblp.all.cmty.txt", 'r') as f:
+    data =f.read()
+
+    for line in data.split("\n"):
+        community = []
+        for elem in line.split("\t"):
+            community.append(int(elem))
+        communities.append(community)
+
+   # perform file operations
 # Kadabra is apx betweennes
+GH = GroupHarmonicCentrality(G,10)
+GH.compute_groups_centralities()
+print("Group with highest group harmonic centrality ",GH.get_max_group())
+print("HC of such group",GH.get_GHC_max_group())
+exit(1)
 
+
+exit(1)
 kadabra = nk.centrality.KadabraBetweenness(G,0.05,0.8)
 kadabra.run()
 # The exhaustive Harmonic is really expensive and slow on big graphs,
