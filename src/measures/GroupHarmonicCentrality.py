@@ -17,6 +17,9 @@ class GroupHarmonicCentrality:
         self.max_group = None
         self.GHC_max_group = None
 
+
+
+
     def findsubsets(self,s, k):
         return list(itertools.combinations(s, k))
 
@@ -46,3 +49,5 @@ class GroupHarmonicCentrality:
 
         self.max_group = self.groups[index]
         self.GHC_max_group = self.groups_centralities[index]
+
+
