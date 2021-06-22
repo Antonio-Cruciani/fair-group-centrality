@@ -89,8 +89,14 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
         distances = []
         nodes = [u for u in subgraph.iterNodes()]
         if(len(set(nodes).intersection(group))>0):
-            nk.traversal.Traversal.BFSfrom(subgraph, group, lambda u, dist: distances.append(1. / dist))
-            return sum(distances)
+            nk.traversal.Traversal.BFSfrom(subgraph, group, lambda u, dist: distances.append(dist))
+            normalized = []
+            for dist in distances:
+                if (dist != 0):
+                    normalized.append(1. / dist)
+                else:
+                    normalized.append(0.0)
+            return sum(normalized)
         else:
             return (0.0)
 
