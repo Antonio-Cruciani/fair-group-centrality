@@ -58,11 +58,10 @@ with open("../datasets/dblp/com-dblp.all.cmty.txt", 'r') as f:
 
    # perform file operations
 # Kadabra is apx betweennes
-GH = GroupHarmonicCentrality(G,10)
+GH = GroupHarmonicCentrality(G,1)
 GH.compute_groups_centralities()
 print("Group with highest group harmonic centrality ",GH.get_max_group())
 print("HC of such group",GH.get_GHC_max_group())
-exit(1)
 
 
 exit(1)

@@ -27,9 +27,15 @@ class GroupHarmonicCentrality:
 
     def HarmonicOfGroup(self,group):
         distances = []
-        nk.traversal.Traversal.BFSfrom(self.G, group, lambda u, dist: distances.append(1./dist))
+        nk.traversal.Traversal.BFSfrom(self.G, group, lambda u, dist: distances.append(dist))
+        normalized = []
+        for dist in distances:
+            if(dist != 0):
+                normalized.append(1./dist)
+            else:
+                normalized.append(0.0)
 
-        return sum(distances)
+        return sum(normalized)
 
 
     def compute_groups_centralities(self):
