@@ -6,7 +6,7 @@ class FairHarmonicCentrality:
 
     def __init__(self, G, C, k, TopHarmonicCloseness=None):
         if TopHarmonicCloseness is None:
-            self.TopHarmonicCloseness = {"top": True, "useNBbound": False,'normalized':False}
+            self.TopHarmonicCloseness = {"top": True, "useNBbound": False,'normalized':True}
         else:
             self.TopHarmonicCloseness = TopHarmonicCloseness
         self.G = G
@@ -37,6 +37,8 @@ class FairHarmonicCentrality:
             group = list(set(community).intersection(set(self.S)))
             if(len(group)>0):
                 SG = self.G.subgraphFromNodes(group)
+                # Need to define Harmonic Centrality
+
             else:
                 fairness.append(0)
 
@@ -46,6 +48,7 @@ class FairHarmonicCentrality:
 
 G = nk.graphio.SNAPGraphReader().read("../datasets/com-youtube/com-youtube.ungraph.txt")
 # Kadabra is apx betweennes
+
 kadabra = nk.centrality.KadabraBetweenness(G,0.05,0.8)
 kadabra.run()
 # The exhaustive Harmonic is really expensive and slow on big graphs,
