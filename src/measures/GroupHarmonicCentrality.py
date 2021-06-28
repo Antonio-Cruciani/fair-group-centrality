@@ -24,8 +24,6 @@ class GroupHarmonicCentrality:
         self.S = None
 
 
-
-
     def findsubsets(self,s, k):
         return list(itertools.combinations(s, k))
 
@@ -175,7 +173,6 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
             degs = []
             for u in community:
                 degs.append([u, subgraph.degree(u)])
-
             degs = sorted(degs, key=lambda tup: tup[1], reverse=True)
             S.append(degs[0][0])
         self.S = S
