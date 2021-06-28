@@ -14,7 +14,8 @@ class GroupHarmonicCentrality:
         self.groups = None
         self.groups_centralities = None
 
-
+        self.degree_heuristic_group = None
+        self.GHC_degree_heuristic_group = None
 
         self.max_group = None
         self.GHC_max_group = None
@@ -38,7 +39,7 @@ class GroupHarmonicCentrality:
         return sum(normalized)
 
 
-    def compute_groups_centralities(self):
+    def computeGroupsCentralities(self):
         logging.debug("Computing all the subsets of %r nodes"%(self.k))
         start_groups = time.time()
         self.groups = self.findsubsets(self.nodes,self.k)
@@ -73,6 +74,8 @@ class GroupHarmonicCentrality:
 
 
 
+
+
 class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
     def __init__(self, G,C, k):
         super().__init__(G, k)
@@ -85,7 +88,8 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
 
     # Compute the Group Harmonic Centrality between the community and the group
     def HarmonicOfGroupOnSubsets(self,C, group):
-        subgraph = nk.subgraphFromNodes(self.G,C)
+
+        subgraph = nk.graphtools.subgraphFromNodes(self.G,C)
         distances = []
         nodes = [u for u in subgraph.iterNodes()]
         if(len(set(nodes).intersection(group))>0):
@@ -102,10 +106,15 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
 
 
     # for each community computes all the Fair Group Harmonic Centrality wrt each group of k nodes
-    def computeFairGroupHarmonicCentrality(self):
-        self.compute_groups_centralities()
+    # If such set is not given, it exhaustively computes all the possible subsets of k nodes in the network
+    def computeFairGroupHarmonicCentrality(self,S = []):
+        if(not S):
+            self.compute_groups_centralities()
+        else:
+            self.groups = S
         i = 0
         for community in self.communities:
+
             self.FGHC[i] = []
             for group in self.groups:
                 GHC = self.HarmonicOfGroupOnSubsets(community,group)
@@ -114,3 +123,12 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
                 else:
                     self.FGHC[i].append(GHC)
             i+=1
+
+
+    def get_FGHC(self):
+        return self.FGHC
+
+
+
+
+

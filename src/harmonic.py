@@ -1,4 +1,5 @@
 import networkit as nk
+import random
 from measures.GroupHarmonicCentrality import GroupHarmonicCentrality,FairGroupHarmonicCentrality
 
 
@@ -58,10 +59,25 @@ with open("../datasets/dblp/com-dblp.all.cmty.txt", 'r') as f:
 
    # perform file operations
 # Kadabra is apx betweennes
-GH = GroupHarmonicCentrality(G,1)
-GH.compute_groups_centralities()
-print("Group with highest group harmonic centrality ",GH.get_max_group())
-print("HC of such group",GH.get_GHC_max_group())
+n = 100
+k = 10
+p_in = 0.7
+p_out = 0.4
+Clustered = nk.generators.ClusteredRandomGraphGenerator(n,k,p_in,p_out)
+clustered = Clustered.generate()
+C =  Clustered.getCommunities()
+idCommunities =  C.getSubsetIds()
+Communities = []
+for id in idCommunities:
+    Communities.append(list(C.getMembers(id)))
+
+nodi = [u for u in clustered.iterNodes()]
+S= [random.sample(nodi, k)]
+GH = FairGroupHarmonicCentrality(clustered,Communities,k)
+GH.computeFairGroupHarmonicCentrality(S)
+OverallHarmonic = GH.HarmonicOfGroup(S[0])
+print("FGHC of S ",GH.get_FGHC())
+print("overall HC of S ",OverallHarmonic)
 
 
 exit(1)
