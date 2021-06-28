@@ -2,6 +2,7 @@ import itertools
 import networkit as nk
 import logging
 import time
+import random
 logging.basicConfig(level=logging.DEBUG)
 class GroupHarmonicCentrality:
 
@@ -19,6 +20,8 @@ class GroupHarmonicCentrality:
 
         self.max_group = None
         self.GHC_max_group = None
+
+        self.S = None
 
 
 
@@ -38,14 +41,14 @@ class GroupHarmonicCentrality:
 
         return sum(normalized)
 
-
     def computeGroupsCentralities(self):
-        logging.debug("Computing all the subsets of %r nodes"%(self.k))
-        start_groups = time.time()
-        self.groups = self.findsubsets(self.nodes,self.k)
-        end_groups = time.time()
-        logging.debug("Elapsed time = %r"%(end_groups-start_groups))
-        logging.debug("Number of groups = %r"%(len(self.groups)))
+        if(self.S == None):
+            logging.debug("Computing all the subsets of %r nodes"%(self.k))
+            start_groups = time.time()
+            self.groups = self.findsubsets(self.nodes,self.k)
+            end_groups = time.time()
+            logging.debug("Elapsed time = %r"%(end_groups-start_groups))
+            logging.debug("Number of groups = %r"%(len(self.groups)))
         self.groups_centralities = []
         for group in self.groups:
             self.groups_centralities.append(self.HarmonicOfGroup(group))
@@ -70,10 +73,34 @@ class GroupHarmonicCentrality:
     def get_max_group(self):
         return self.max_group
 
+    def sampleS(self,numberOfSets = 1):
+        S = []
+        for i in range(0,numberOfSets):
+            S.append(random.sample(self.nodes, self.k))
+        self.S = S
+        self.groups = S
 
+    def maxDegS(self):
+        S = []
+        degs = []
+        for u in self.nodes:
+            degs.append([u,self.G.degree(u)])
 
+        degs = sorted(degs, key=lambda tup: tup[1],reverse=True)
+        for i in range(0,self.k):
+            S.append(degs[i][0])
+        self.S = S
+        self.groups = S
 
+    def set_S(self,S):
+        self.S = S
+    def get_S(self):
+        return self.S
 
+    def get_groups(self):
+        return(self.groups)
+    def get_groups_centralities(self):
+        return(self.groups_centralities)
 
 
 class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
@@ -108,10 +135,16 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
     # for each community computes all the Fair Group Harmonic Centrality wrt each group of k nodes
     # If such set is not given, it exhaustively computes all the possible subsets of k nodes in the network
     def computeFairGroupHarmonicCentrality(self,S = []):
-        if(not S):
+
+        if(not (S or self.S)):
             self.compute_groups_centralities()
+
         else:
-            self.groups = S
+            if(S):
+                self.groups = [S]
+            elif(self.S):
+                self.groups = [self.S]
+
         i = 0
         for community in self.communities:
 
@@ -128,7 +161,23 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
     def get_FGHC(self):
         return self.FGHC
 
+    def sampleInEachCommunity(self):
+        S = []
+        for community in self.communities:
+            S.append(random.sample(community, 1)[0])
+        self.S = S
 
+    def maxDegreeInEachCommunity(self):
+        S = []
+        for community in self.communities:
 
+            subgraph = nk.graphtools.subgraphFromNodes(self.G, community)
+            degs = []
+            for u in community:
+                degs.append([u, subgraph.degree(u)])
+
+            degs = sorted(degs, key=lambda tup: tup[1], reverse=True)
+            S.append(degs[0][0])
+        self.S = S
 
 

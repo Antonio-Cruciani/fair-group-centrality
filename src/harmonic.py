@@ -59,7 +59,7 @@ with open("../datasets/dblp/com-dblp.all.cmty.txt", 'r') as f:
 
    # perform file operations
 # Kadabra is apx betweennes
-n = 100
+n = 500
 k = 10
 p_in = 0.7
 p_out = 0.4
@@ -73,10 +73,23 @@ for id in idCommunities:
 
 nodi = [u for u in clustered.iterNodes()]
 S= [random.sample(nodi, k)]
-GH = FairGroupHarmonicCentrality(clustered,Communities,k)
-GH.computeFairGroupHarmonicCentrality(S)
-OverallHarmonic = GH.HarmonicOfGroup(S[0])
-print("FGHC of S ",GH.get_FGHC())
+GH = GroupHarmonicCentrality(clustered,k)
+#GH.sampleS(150)
+GH.maxDegS()
+GH.computeGroupsCentralities()
+print("ALL SAMPLES group - centrality")
+print(GH.get_groups())
+print(GH.get_groups_centralities())
+print("--------------------------")
+print("GH max group: ",GH.get_max_group() )
+print("GH Value :",GH.get_GHC_max_group())
+FGH = FairGroupHarmonicCentrality(clustered,Communities,k)
+#FGH.computeFairGroupHarmonicCentrality([GH.get_max_group()] )
+FGH.maxDegreeInEachCommunity()
+FGH.computeFairGroupHarmonicCentrality()
+print(FGH.get_S())
+OverallHarmonic = FGH.HarmonicOfGroup(FGH.get_S())
+print("FGHC of S ",FGH.get_FGHC())
 print("overall HC of S ",OverallHarmonic)
 
 
