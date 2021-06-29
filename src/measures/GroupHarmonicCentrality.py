@@ -79,13 +79,16 @@ class GroupHarmonicCentrality:
         self.S = S
         self.groups = S
 
-    def samplePageRankS(self):
+    def samplePageRankS(self,numberOfSets = 1):
         S = []
-        PR = nk.centrality.PageRank(self.G).run().ranking()
-        for i in range(0,self.k):
-            S.append(PR[i][0])
+        for j in range(0,numberOfSets):
+            PR = nk.centrality.PageRank(self.G).run().ranking()
+            ranking = []
+            for i in range(0,self.k):
+                ranking.append(PR[i][0])
+            S.append(ranking)
         self.S = S
-        self.groups = [S]
+        self.groups = S
 
 
     def maxDegS(self):
@@ -124,17 +127,6 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
     # Compute the Group Harmonic Centrality between the community and the group
     def HarmonicOfGroupOnSubsets(self,C, group):
 
-        #subgraph = nk.graphtools.subgraphFromNodes(self.G,C)
-        #distances = []
-        #nodes = [u for u in subgraph.iterNodes()]
-        # nk.traversal.Traversal.BFSfrom(self.G, group, lambda u, dist: distances.append(dist))
-        # normalized = []
-        # for dist in distances:
-        #     if (dist != 0):
-        #         normalized.append(1. / dist)
-        #     else:
-        #         normalized.append(0.0)
-        # return sum(normalized)
         nodes = set(C)-set(group)
         distances = []
         for u in nodes:
@@ -153,19 +145,7 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
                 distances.append(0.0)
         return(sum(distances))
 
-        # if(len(set(nodes).intersection(group))>0):
-        #     nk.traversal.Traversal.BFSfrom(subgraph, group, lambda u, dist: distances.append(dist))
-        #     normalized = []
-        #     for dist in distances:
-        #         if (dist != 0):
-        #             normalized.append(1. / dist)
-        #         else:
-        #             normalized.append(0.0)
-        #     return sum(normalized)
-        # else:
-        #
-        #     return (0.0)
-        #
+
 
     # for each community computes all the Fair Group Harmonic Centrality wrt each group of k nodes
     # If such set is not given, it exhaustively computes all the possible subsets of k nodes in the network
