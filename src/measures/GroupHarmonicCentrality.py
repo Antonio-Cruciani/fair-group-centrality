@@ -42,6 +42,7 @@ class GroupHarmonicCentrality:
     def computeGroupsCentralities(self):
         if(self.S == None):
             logging.debug("Computing all the subsets of %r nodes"%(self.k))
+            logging.debug("Advice: get a coffee..")
             start_groups = time.time()
             self.groups = self.findsubsets(self.nodes,self.k)
             end_groups = time.time()
@@ -114,21 +115,48 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
     # Compute the Group Harmonic Centrality between the community and the group
     def HarmonicOfGroupOnSubsets(self,C, group):
 
-        subgraph = nk.graphtools.subgraphFromNodes(self.G,C)
+        #subgraph = nk.graphtools.subgraphFromNodes(self.G,C)
+        #distances = []
+        #nodes = [u for u in subgraph.iterNodes()]
+        # nk.traversal.Traversal.BFSfrom(self.G, group, lambda u, dist: distances.append(dist))
+        # normalized = []
+        # for dist in distances:
+        #     if (dist != 0):
+        #         normalized.append(1. / dist)
+        #     else:
+        #         normalized.append(0.0)
+        # return sum(normalized)
+        nodes = set(C)-set(group)
         distances = []
-        nodes = [u for u in subgraph.iterNodes()]
-        if(len(set(nodes).intersection(group))>0):
-            nk.traversal.Traversal.BFSfrom(subgraph, group, lambda u, dist: distances.append(dist))
-            normalized = []
-            for dist in distances:
-                if (dist != 0):
-                    normalized.append(1. / dist)
-                else:
-                    normalized.append(0.0)
-            return sum(normalized)
-        else:
-            return (0.0)
+        for u in nodes:
 
+            bfs = nk.distance.BFS(self.G,u).run()
+
+            min_distance = 100000000
+            for v in group:
+                dist = bfs.distance(v)
+                if(dist< min_distance):
+                    min_distance = dist
+            if(min_distance >0):
+
+                distances.append(1./min_distance)
+            else:
+                distances.append(0.0)
+        return(sum(distances))
+
+        # if(len(set(nodes).intersection(group))>0):
+        #     nk.traversal.Traversal.BFSfrom(subgraph, group, lambda u, dist: distances.append(dist))
+        #     normalized = []
+        #     for dist in distances:
+        #         if (dist != 0):
+        #             normalized.append(1. / dist)
+        #         else:
+        #             normalized.append(0.0)
+        #     return sum(normalized)
+        # else:
+        #
+        #     return (0.0)
+        #
 
     # for each community computes all the Fair Group Harmonic Centrality wrt each group of k nodes
     # If such set is not given, it exhaustively computes all the possible subsets of k nodes in the network
@@ -189,5 +217,38 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
                 centralities = nk.centrality.HarmonicCloseness(subgraph, normalized=normalized).run().ranking()
                 S.append(centralities[0][0])
         self.S = S
+
+
+    def maxHitting(self):
+        # preprocessing
+        j = 0
+        partition = {}
+        for community in self.communities:
+            for u in community:
+                partition[u] = j
+            j=1
+
+        results = []
+        for community in self.communities:
+            max_hitting = -1
+            max_hitting_index = 0
+            for v in community:
+                hits = {partition[v] : 0}
+                for neig in self.G.iterNeighbors(v):
+                    if not (partition[neig] in hits):
+                        hits[partition[neig]] = 0
+                if(len(hits) > max_hitting):
+                    max_hitting = len(hits)
+                    max_hitting_index = v
+            results.append((max_hitting_index,max_hitting))
+        results = sorted(results, key=lambda tup: tup[1], reverse=True)
+        selected = []
+        for node in  results[0:self.k]:
+            selected.append(node[0])
+        self.S =selected
+
+
+
+
 
 
