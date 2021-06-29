@@ -168,13 +168,24 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
     def maxDegreeInEachCommunity(self):
         S = []
         for community in self.communities:
-
             subgraph = nk.graphtools.subgraphFromNodes(self.G, community)
             degs = []
             for u in community:
                 degs.append([u, subgraph.degree(u)])
             degs = sorted(degs, key=lambda tup: tup[1], reverse=True)
             S.append(degs[0][0])
+        self.S = S
+
+    def maxHCInEachCommunity(self,normalized = True,approximated = False):
+        S = []
+        for community in self.communities:
+            subgraph = nk.graphtools.subgraphFromNodes(self.G, community)
+            if(approximated):
+                centralities = nk.centrality.TopHarmonicCloseness(subgraph,1,useNBbound= False).run().topkNodesList()
+                S.append(centralities[0])
+            else:
+                centralities = nk.centrality.HarmonicCloseness(subgraph, normalized=normalized).run().ranking()
+                S.append(centralities[0][0])
         self.S = S
 
 
