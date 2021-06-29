@@ -165,6 +165,7 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
             S.append(random.sample(community, 1)[0])
         self.S = S
 
+    # HEURISTIC: For each community take the node that has highest intra-degree
     def maxDegreeInEachCommunity(self):
         S = []
         for community in self.communities:
@@ -176,6 +177,7 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
             S.append(degs[0][0])
         self.S = S
 
+    # HEURISTIC: For each community take the node with highest intra-harmonic centrality
     def maxHCInEachCommunity(self,normalized = True,approximated = False):
         S = []
         for community in self.communities:
