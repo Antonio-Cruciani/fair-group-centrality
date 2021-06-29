@@ -79,6 +79,15 @@ class GroupHarmonicCentrality:
         self.S = S
         self.groups = S
 
+    def samplePageRankS(self):
+        S = []
+        PR = nk.centrality.PageRank(self.G).run().ranking()
+        for i in range(0,self.k):
+            S.append(PR[i][0])
+        self.S = S
+        self.groups = [S]
+
+
     def maxDegS(self):
         S = []
         degs = []
