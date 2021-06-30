@@ -33,6 +33,9 @@ for id in idCommunities:
 
 nodi = [u for u in clustered.iterNodes()]
 S= [random.sample(nodi, k)]
+
+
+exit(1)
 GH = GroupHarmonicCentrality(clustered,k)
 #GH.sampleS(150)
 GH.samplePageRankS()
