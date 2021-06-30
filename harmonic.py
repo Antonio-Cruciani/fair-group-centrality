@@ -1,9 +1,10 @@
 import networkit as nk
 import random
-from measures.GroupHarmonicCentrality import GroupHarmonicCentrality,FairGroupHarmonicCentrality
-from generators.graphs.ErdosRenyi import ErdosRenyi
-from generators.graphs.BarabasiAlblert import BarabasiAlbert
-from generators.graphs.SBM import SBM
+#from src.measures.groupCentralities.GroupHarmonicCentrality import GroupHarmonicCentrality
+from src.measures.FairHarmonicCentrality import FairGroupHarmonicCentrality,GroupHarmonicCentrality
+from src.generators.graphs.ErdosRenyi import ErdosRenyi
+from src.generators.graphs.BarabasiAlblert import BarabasiAlbert
+from src.generators.graphs.SBM import SBM
 sizes = [10,10,10,10,10]
 n = 50
 p = 0.5
@@ -34,11 +35,10 @@ print("SBM")
 print(sbm.get_communities())
 
 
-exit(1)
 
-G = nk.graphio.SNAPGraphReader().read("../datasets/dblp/com-dblp.ungraph.txt")
+G = nk.graphio.SNAPGraphReader().read("./datasets/dblp/com-dblp.ungraph.txt")
 communities = []
-with open("../datasets/dblp/com-dblp.all.cmty.txt", 'r') as f:
+with open("datasets/dblp/com-dblp.all.cmty.txt", 'r') as f:
     data =f.read()
 
     for line in data.split("\n"):
@@ -65,26 +65,19 @@ nodi = [u for u in clustered.iterNodes()]
 S= [random.sample(nodi, k)]
 
 
-exit(1)
-GH = GroupHarmonicCentrality(clustered,k)
-#GH.sampleS(150)
-GH.samplePageRankS()
-GH.computeGroupsCentralities()
-print("ALL SAMPLES group - centrality")
-print(GH.get_groups())
-print(GH.get_groups_centralities())
-print("--------------------------")
-print("GH max group: ",GH.get_max_group() )
-print("GH Value :",GH.get_GHC_max_group())
-FGH = FairGroupHarmonicCentrality(clustered,Communities,10)
-FGH.samplePageRankS(50)
-FGH.computeGroupsCentralities()
 
+
+FGH = FairGroupHarmonicCentrality(clustered,Communities,10)
+#FGH.samplePageRankS(50)
+
+FGH.computeGroupsCentralities()
+print("<<<<<<<<<<<<<<<<<<<<<<<<<<")
+print(FGH.get_S())
 #FGH.computeFairGroupHarmonicCentrality([GH.get_max_group()] )
-FGH.sampleInEachCommunity()
+#FGH.sampleInEachCommunity()
 FGH.computeFairGroupHarmonicCentrality()
 print(FGH.get_S())
-OverallHarmonic = FGH.get_max_group()
+OverallHarmonic = FGH.get_GHC_max_group()
 print("FGHC of S ",FGH.get_FGHC())
 print("overall HC of S ",OverallHarmonic)
 

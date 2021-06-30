@@ -1,3 +1,6 @@
+import networkit as nk
+#from groupCentralities.GroupHarmonicCentrality import GroupHarmonicCentrality
+
 import itertools
 import networkit as nk
 import logging
@@ -40,32 +43,23 @@ class GroupHarmonicCentrality:
         return sum(normalized)
 
     def computeGroupsCentralities(self):
-        if(self.S == None):
-            logging.debug("Computing all the subsets of %r nodes"%(self.k))
-            logging.debug("Advice: get a coffee..")
-            start_groups = time.time()
-            self.groups = self.findsubsets(self.nodes,self.k)
-            end_groups = time.time()
-            logging.debug("Elapsed time = %r"%(end_groups-start_groups))
-            logging.debug("Number of groups = %r"%(len(self.groups)))
-        self.groups_centralities = []
-        for group in self.groups:
-            self.groups_centralities.append(self.HarmonicOfGroup(group))
+        # if(self.S == None):
+        #     logging.debug("Computing all the subsets of %r nodes"%(self.k))
+        #     logging.debug("Advice: get a coffee..")
+        #     start_groups = time.time()
+        #     self.groups = self.findsubsets(self.nodes,self.k)
+        #     end_groups = time.time()
+        #     logging.debug("Elapsed time = %r"%(end_groups-start_groups))
+        #     logging.debug("Number of groups = %r"%(len(self.groups)))
+        # self.groups_centralities = []
+        # for group in self.groups:
+        #     self.groups_centralities.append(self.HarmonicOfGroup(group))
+        self.groups_centralities = nk.centrality.GroupHarmonicCloseness(self.G,self.k).run()
 
-        # getting the group of k nodes that maximizes the Group Harmonic Centrality
-        index = 0
-        j = 0
-        maximum = 0
 
-        for elem in self.groups_centralities:
-            if(elem>maximum):
-                maximum = elem
-                index = j
-            j+=1
-
-        self.max_group = self.groups[index]
-        self.GHC_max_group = self.groups_centralities[index]
-
+        self.max_group = self.groups_centralities.groupMaxHarmonicCloseness()
+        self.GHC_max_group = self.groups_centralities.scoreOfGroup(self.G,self.max_group)
+        self.S = self.max_group
 
     def get_GHC_max_group(self):
         return self.GHC_max_group
@@ -112,6 +106,17 @@ class GroupHarmonicCentrality:
         return(self.groups)
     def get_groups_centralities(self):
         return(self.groups_centralities)
+
+
+
+
+
+
+
+
+
+
+
 
 
 class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
@@ -235,9 +240,3 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
         for node in  results[0:self.k]:
             selected.append(node[0])
         self.S =selected
-
-
-
-
-
-
