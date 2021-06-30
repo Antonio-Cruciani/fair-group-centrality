@@ -2,12 +2,38 @@ import networkit as nk
 import random
 from measures.GroupHarmonicCentrality import GroupHarmonicCentrality,FairGroupHarmonicCentrality
 from generators.graphs.ErdosRenyi import ErdosRenyi
+from generators.graphs.BarabasiAlblert import BarabasiAlbert
+from generators.graphs.SBM import SBM
 sizes = [10,10,10,10,10]
 n = 50
 p = 0.5
+k = 3
+ba =  BarabasiAlbert(n, k,communities_number = 50,communities_structure = "BFS",communities_size = sizes)
+ba.run()
+
+print("Detected")
+ba.communityDetection('plm')
+
+print(ba.get_detectedCommunities())
+print("Syntetic")
+print(ba.get_communities())
 er = ErdosRenyi(n,p,communities_number = 50,communities_structure = "BFS",communities_size = sizes)
 er.run()
+print("ERDOS")
+print("Detected")
+er.communityDetection("plm")
+print(er.get_detectedCommunities())
+print("Syntetic")
 print(er.get_communities())
+n = 500
+k = 10
+p_in = 0.7
+p_out = 0.4
+sbm = SBM(n,p_in,p_out,k)
+print("SBM")
+print(sbm.get_communities())
+
+
 exit(1)
 
 G = nk.graphio.SNAPGraphReader().read("../datasets/dblp/com-dblp.ungraph.txt")

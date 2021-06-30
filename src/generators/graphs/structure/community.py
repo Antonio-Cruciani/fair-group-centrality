@@ -12,6 +12,7 @@ class community():
         self.number = len(size)
         self.nodes = [v for v in self.G.iterNodes()]
         self.communities = []
+        self.detectedCommunities = []
 
 
 
@@ -23,6 +24,15 @@ class community():
         elif(self.structure in ['BFS','bfs']):
             self.computeBFSCommunities()
 
+    def communityDetection(self, algorithm="standard"):
+        if (algorithm in ['standard', 'Standard', 'STANDARD']):
+            communities = nk.community.detectCommunities(self.G)
+        elif (algorithm in ['PLM', 'plm']):
+            communities = nk.community.detectCommunities(self.G, algo=nk.community.PLM(self.G, True))
+        elif (algorithm in ['PLP', 'plp']):
+            communities = nk.community.detectCommunities(self.G, algo=nk.community.PLP(self.G))
+        for setIndex in communities.getSubsetIds():
+            self.detectedCommunities.append(list(communities.getMembers(setIndex)))
 
     def computeBFSCommunities(self):
         nodes = self.nodes
@@ -68,3 +78,5 @@ class community():
         return self.size
     def get_structure(self):
         return self.structure
+    def get_detectedCommunities(self):
+        return self.detectedCommunities

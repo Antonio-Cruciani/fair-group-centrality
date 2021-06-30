@@ -1,5 +1,4 @@
 import networkit as nk
-import random as rnd
 from src.generators.graphs.structure.community import community
 class ErdosRenyi(community):
 
