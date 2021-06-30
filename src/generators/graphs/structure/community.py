@@ -11,7 +11,8 @@ class community():
         self.size = size
         self.number = len(size)
         self.nodes = [v for v in self.G.iterNodes()]
-        self.communities = None
+        self.communities = []
+
 
 
 
@@ -25,23 +26,35 @@ class community():
 
     def computeBFSCommunities(self):
         nodes = self.nodes
-        seeds = rnd.sample(nodes,self.size)
+        seeds = rnd.sample(nodes,self.number)
         graph = self.G
         j = 0
         for seed in seeds:
             bfs = nk.distance.BFS(graph, seed, storePaths=True, storeNodesSortedByDistance=True).run()
             sorted_by_distance = bfs.getNodesSortedByDistance()
-            self.communities.append(sorted_by_distance[0:self.structure[j]])
-            new_nodes = set(nodes) - set(sorted_by_distance[0:self.structure[j]])
+            self.communities.append(sorted_by_distance[0:self.size[j]])
+            new_nodes = set(nodes) - set(sorted_by_distance[0:self.size[j]])
             nodes = list(new_nodes)
             graph = nk.graphtools.subgraphFromNodes(self.G, nodes)
             j+=1
+        # If the method did not assign all the nodes to a community, assign the remaining at random to the communities that have
+        # size less than the desidered target size.
+        if(len(nodes) != 0):
+            j = 0
+            for elem in self.communities:
+                if(len(elem) != self.size[j]):
+                    target_size = self.size[j] - len(elem)
+                    new_nodes = rnd.sample(nodes,target_size)
+                    self.communities[j].extend(new_nodes)
+                    updates = set(nodes)-set(new_nodes)
+                    nodes = list(updates)
+                j+=1
 
 
     def computeRandomCommunities(self):
         nodes = self.nodes
         j = 0
-        for k in range(0,self.communitiesNumber):
+        for k in range(0,self.number):
             self.communities.append(rnd.sample(nodes, self.size[j]))
             new_nodes = set(nodes) - set(self.communities[j])
             nodes = list(new_nodes)

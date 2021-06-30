@@ -1,10 +1,14 @@
 import networkit as nk
 import random
 from measures.GroupHarmonicCentrality import GroupHarmonicCentrality,FairGroupHarmonicCentrality
-
-
-
-
+from generators.graphs.ErdosRenyi import ErdosRenyi
+sizes = [10,10,10,10,10]
+n = 50
+p = 0.5
+er = ErdosRenyi(n,p,communities_number = 50,communities_structure = "BFS",communities_size = sizes)
+er.run()
+print(er.get_communities())
+exit(1)
 
 G = nk.graphio.SNAPGraphReader().read("../datasets/dblp/com-dblp.ungraph.txt")
 communities = []
