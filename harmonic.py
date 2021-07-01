@@ -3,7 +3,7 @@ import random
 #from src.measures.groupCentralities.GroupHarmonicCentrality import GroupHarmonicCentrality
 from src.measures.FairHarmonicCentrality import FairGroupHarmonicCentrality,GroupHarmonicCentrality
 from src.generators.graphs.ErdosRenyi import ErdosRenyi
-from src.generators.graphs.BarabasiAlblert import BarabasiAlbert
+from src.generators.graphs.BarabasiAlbert import BarabasiAlbert
 from src.generators.graphs.SBM import SBM
 sizes = [10,10,10,10,10]
 n = 50
