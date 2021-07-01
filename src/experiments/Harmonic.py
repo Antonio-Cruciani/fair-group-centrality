@@ -20,6 +20,8 @@ class Harmonic:
         if(self.instance['type'] in ['syntetic','Syntetic']):
             self.runSynteticExperiments()
 
+    # Method that load the datasets and run the experiments
+
     def runSynteticExperiments(self):
 
         for elem in self.instance['graphs']:
@@ -32,14 +34,14 @@ class Harmonic:
                 listOfParameters.append(parameter)
 
             parametersCombination =list(itertools.product(*listOfParameters))
-
+            paraKeys = list(self.instance['graphs'][elem].keys())
+            # Loading the graphs
             if(elem in ['Erdos-Renyi','ER','er','Erdos Renyi','ErdosRenyi']):
-                print("ciao")
+                j = 0
+                for para in
             elif(elem in ['Barabasi-Albert','BA','ba','BarabasiAlbert','Barabasi Albert']):
-                print("ciao")
 
             elif(elem in ['SBM','sbm']):
 
-                print("ciao")
 
 
