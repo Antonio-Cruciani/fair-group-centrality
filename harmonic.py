@@ -33,7 +33,7 @@ p_out = 0.4
 sbm = SBM(n,p_in,p_out,k)
 print("SBM")
 print(sbm.get_communities())
-
+sbm.save_graph()
 
 
 G = nk.graphio.SNAPGraphReader().read("./datasets/dblp/com-dblp.ungraph.txt")

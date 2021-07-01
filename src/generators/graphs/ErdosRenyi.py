@@ -19,6 +19,19 @@ class ErdosRenyi(community):
     def get_p(self):
         return self.p
 
+    def save_graph(self,outPath="./"):
+        if (outPath[-1] != "/"):
+            outPath += "/"
+        instance = {
+            'outPath': outPath,
+            'graph':'Erdos-Renyi',
+            'parameters': {
+                'P':self.p,
+                'Communities':self.k
 
+            }
+
+        }
+        self.write_instance(instance)
 
 

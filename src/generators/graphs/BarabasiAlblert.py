@@ -19,5 +19,20 @@ class BarabasiAlbert(community):
     def get_k(self):
         return self.k
 
+    def save_graph(self,outPath="./"):
+        if(outPath[-1] != "/"):
+            outPath+="/"
+        instance = {
+            'outPath':outPath,
+            'graph':'Barabasi-Albert',
+            'parameters': {
+                'Max_degree':self.k,
+                'Communities':len(self.get_communities()),
+
+            }
+
+        }
+        self.write_instance(instance)
+
 
 
