@@ -4,7 +4,7 @@ import networkit as nk
 
 class community():
 
-    def __init__(self, G, structure, size):
+    def __init__(self, G, structure, size,treshold = None):
 
         self.G = G
         self.structure = structure
@@ -14,12 +14,13 @@ class community():
         self.edges = [e for e in self.G.iterEdges()]
         self.communities = []
         self.detectedCommunities = []
+        self.treshold = treshold
 
     def run(self):
         if (self.structure in ['random', 'Random', 'RANDOM']):
-            self.computeRandomCommunities()
+            self.assignRandomCommunities()
         elif (self.structure in ['BFS', 'bfs']):
-            self.computeBFSCommunities()
+            self.samplingBFSCommunities()
         else:
             self.communities = []
 
@@ -34,6 +35,7 @@ class community():
             self.detectedCommunities.append(list(communities.getMembers(setIndex)))
 
     def computeBFSCommunities(self):
+
         nodes = self.nodes
         seeds = rnd.sample(nodes, self.number)
         graph = self.G
@@ -59,6 +61,27 @@ class community():
                     nodes = list(updates)
                 j += 1
 
+    def samplingBFSCommunities(self):
+        nodes = self.nodes
+        graph = self.G
+        while(len(nodes)>0):
+            seed =  rnd.sample(nodes, 1)[0]
+            bfs = nk.distance.BFS(graph, seed, storePaths=True, storeNodesSortedByDistance=True).run()
+            sorted_by_distance = bfs.getNodesSortedByDistance()
+            i = 0
+            community = []
+            while(i<self.treshold and i<len(sorted_by_distance)):
+                community.append(sorted_by_distance[i])
+                i+=1
+            new_nodes = set(nodes) - set(community)
+            nodes = list(new_nodes)
+            graph = nk.graphtools.subgraphFromNodes(self.G, nodes)
+            self.communities.append(community)
+
+        self.number = len(self.communities)
+
+
+
     def computeRandomCommunities(self):
         nodes = self.nodes
         j = 0
@@ -67,6 +90,13 @@ class community():
             new_nodes = set(nodes) - set(self.communities[j])
             nodes = list(new_nodes)
             j += 1
+
+    def assignRandomCommunities(self):
+        for c in range(0,self.number):
+            self.communities.append([])
+        for u in self.nodes:
+            communityIndex = rnd.randint(0, self.number-1)
+            self.communities[communityIndex].append(u)
 
     def get_communities(self):
         return self.communities

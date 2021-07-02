@@ -9,7 +9,7 @@ sizes = [10,10,10,10,10]
 n = 50
 p = 0.5
 k = 3
-ba =  BarabasiAlbert(n, k,communities_number = 50,communities_structure = "BFS",communities_size = sizes)
+ba =  BarabasiAlbert(n, k,communities_number = 50,communities_structure = "random",communities_size = sizes)
 ba.run()
 
 print("Detected")
@@ -18,12 +18,12 @@ ba.communityDetection('plm')
 print(ba.get_detectedCommunities())
 print("Syntetic")
 print(ba.get_communities())
-er = ErdosRenyi(n,p,communities_number = 50,communities_structure = "BFS",communities_size = sizes)
+er = ErdosRenyi(n,p,communities_number = 50,communities_structure = "bfs",communities_size = sizes,treshold = 40)
 er.run()
 print("ERDOS")
-print("Detected")
-er.communityDetection("plm")
-print(er.get_detectedCommunities())
+#print("Detected")
+#er.communityDetection("plm")
+#print(er.get_detectedCommunities())
 print("Syntetic")
 print(er.get_communities())
 n = 500

@@ -23,6 +23,7 @@ class Harmonic:
         if(self.instance['type'] in ['syntetic','Syntetic']):
             self.runSynteticExperiments()
 
+
     # Method that load the datasets and run the experiments
 
     def runSynteticExperiments(self):
