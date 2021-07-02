@@ -36,9 +36,9 @@ print(sbm.get_communities())
 sbm.save_graph()
 
 
-G = nk.graphio.SNAPGraphReader().read("./datasets/dblp/com-dblp.ungraph.txt")
+G = nk.graphio.SNAPGraphReader().read("./datasets/real/dblp/com-dblp.ungraph.txt")
 communities = []
-with open("datasets/dblp/com-dblp.all.cmty.txt", 'r') as f:
+with open("datasets/real/dblp/com-dblp.all.cmty.txt", 'r') as f:
     data =f.read()
 
     for line in data.split("\n"):
