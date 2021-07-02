@@ -3,14 +3,14 @@ from src.generators.graphs.structure.community import community
 class ErdosRenyi(community):
 
 
-    def __init__(self,n,p,communities_number,communities_structure, communities_size = None):
+    def __init__(self,n,p,communities_number,communities_structure, communities_size = None,treshold = None):
 
         if(communities_size != None):
-            super().__init__(nk.generators.ErdosRenyiGenerator(n,p).generate(),communities_structure,communities_size)
+            super().__init__(nk.generators.ErdosRenyiGenerator(n,p).generate(),communities_structure,communities_size,treshold)
         else:
             # Assuming that n/communities_number give us an int
             cs = [n/communities_number for k in range(0,communities_number)]
-            super().__init__(nk.generators.ErdosRenyiGenerator(n,p).generate(),communities_structure,cs)
+            super().__init__(nk.generators.ErdosRenyiGenerator(n,p).generate(),communities_structure,cs,treshold)
         self.n = n
         self.p = p
 
