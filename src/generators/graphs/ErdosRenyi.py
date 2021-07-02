@@ -3,7 +3,7 @@ from src.generators.graphs.structure.community import community
 class ErdosRenyi(community):
 
 
-    def __init__(self,n,p,communities_number,communities_structure, communities_size = None,treshold = None):
+    def __init__(self,n,p,communities_number=None,communities_structure="bfs", communities_size = None,treshold = 3):
 
         if(communities_size != None):
             super().__init__(nk.generators.ErdosRenyiGenerator(n,p).generate(),communities_structure,communities_size,treshold)

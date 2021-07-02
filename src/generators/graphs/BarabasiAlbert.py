@@ -3,7 +3,7 @@ from src.generators.graphs.structure.community import community
 
 class BarabasiAlbert(community):
 
-    def __init__(self,n,k,communities_number,communities_structure, communities_size = None,treshold=None):
+    def __init__(self,n,k,communities_number=None,communities_structure=None, communities_size = None,treshold=3):
 
         if(communities_size != None):
             super().__init__(nk.generators.BarabasiAlbertGenerator(k,n).generate(),communities_structure,communities_size,treshold)
