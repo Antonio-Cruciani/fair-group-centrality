@@ -154,15 +154,18 @@ def _generate_network_with_community_structure(dir_path,
         if network_type == 'BA':
             ba_graph = ba.BarabasiAlbert(n=n, k=k, communities_number=number_of_communities,
                                          communities_structure=communities_structure)
+            ba_graph.run()
             ba_graph.save_graph(save_path)
 
         elif network_type == 'ER':
             er_graph = er.ErdosRenyi(n=n, p=p, communities_number=number_of_communities,
                                      communities_structure=communities_structure)
+            er_graph.run()
             er_graph.save_graph(save_path)
 
         elif network_type == "SBM":
             sbm_graph = sbm.SBM(n=n, p=p, q=q, number_of_communities=number_of_communities)
+            sbm_graph.run()
             sbm_graph.save_graph(save_path)
 
     elif communities_structure == 'man':
@@ -182,15 +185,18 @@ def _generate_network_with_community_structure(dir_path,
         if network_type == 'BA':
             ba_graph = ba.BarabasiAlbert(n=n, k=k, communities_number=number_of_communities,
                                          communities_structure=communities_structure, communities_size=communities_size)
+            ba_graph.run()
             ba_graph.save_graph(save_path)
 
         elif network_type == 'ER':
             er_graph = er.ErdosRenyi(n=n, p=p, communities_number=number_of_communities,
                                      communities_structure=communities_structure, communities_size=communities_size)
+            er_graph.run()
             er_graph.save_graph(save_path)
 
         elif network_type == "SBM":
             sbm_graph = sbm.SBM(n=n, p=p, q=q, number_of_communities=number_of_communities)
+            sbm_graph.run()
             sbm_graph.save_graph(save_path)
 
     elif communities_structure == 'auto':
@@ -201,10 +207,12 @@ def _generate_network_with_community_structure(dir_path,
         # Check the type of graph and save the graph
         if network_type == 'BA':
             ba_graph = ba.BarabasiAlbert(n=n, k=k, communities_structure=communities_structure)
+            ba_graph.run()
             ba_graph.save_graph(save_path)
 
         elif network_type == 'ER':
             er_graph = er.ErdosRenyi(n=n, p=p, communities_structure=communities_structure)
+            er_graph.run()
             er_graph.save_graph(save_path)
 
         elif network_type == "SBM":
