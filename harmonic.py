@@ -9,9 +9,12 @@ sizes = [10,10,10,10,10]
 n = 50
 p = 0.5
 k = 3
-ba =  BarabasiAlbert(n, k,communities_number = 50,communities_structure = "random",communities_size = sizes)
+ba =  BarabasiAlbert(n, k,communities_number = 50,communities_structure = "bfs",communities_size= [],treshold = 40)
 ba.run()
-
+ba.save_graph()
+print(ba.get_n())
+print(ba.get_communities())
+exit(1)
 print("Detected")
 ba.communityDetection('plm')
 

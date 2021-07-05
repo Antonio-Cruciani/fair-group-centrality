@@ -27,7 +27,7 @@ class ErdosRenyi(community):
             'graph':'Erdos-Renyi',
             'parameters': {
                 'P':self.p,
-                'Communities':self.k
+                'Communities':len(self.get_communities())
 
             }
 

@@ -8,9 +8,13 @@ class BarabasiAlbert(community):
         if(communities_size != None):
             super().__init__(nk.generators.BarabasiAlbertGenerator(k,n).generate(),communities_structure,communities_size,treshold)
         else:
-            # Assuming that n/communities_number give us an int
-            cs = [n/communities_number for k in range(0,communities_number)]
-            super().__init__(nk.generators.ErdosRenyiGenerator(k,n).generate(),communities_structure,cs,treshold)
+            if(communities_number != None):
+                # Assuming that n/communities_number give us an int
+                cs = [n/communities_number for k in range(0,communities_number)]
+                super().__init__(nk.generators.ErdosRenyiGenerator(k,n).generate(),communities_structure,cs,treshold)
+            else:
+                super().__init__(nk.generators.ErdosRenyiGenerator(k,n).generate(),communities_structure,[],treshold)
+
         self.n = n
         self.k = k
 

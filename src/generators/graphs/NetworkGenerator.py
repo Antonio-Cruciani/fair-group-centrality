@@ -124,11 +124,14 @@ def _generate_network_with_community_structure(dir_path,
 
         # Check the type of graph and save the graph
         if network_type == 'BA':
-            ba_graph = ba.BarabasiAlbert(n=n, k=k, communities_structure=communities_structure, treshold=threshold)
+            ba_graph = ba.BarabasiAlbert(n=n, k=k,communities_structure=communities_structure,communities_size= [],treshold=threshold)
+            ba_graph.run()
+            print(save_path)
             ba_graph.save_graph(save_path)
 
         elif network_type == 'ER':
-            er_graph = er.ErdosRenyi(n=n, p=p, communities_structure=communities_structure, treshold=threshold)
+            er_graph = er.ErdosRenyi(n=n, p=p, communities_structure=communities_structure, communities_size= [],treshold=threshold)
+            er_graph.run()
             er_graph.save_graph(save_path)
 
         elif network_type == "SBM":
