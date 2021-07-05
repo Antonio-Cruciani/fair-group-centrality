@@ -126,7 +126,6 @@ def _generate_network_with_community_structure(dir_path,
         if network_type == 'BA':
             ba_graph = ba.BarabasiAlbert(n=n, k=k,communities_structure=communities_structure,communities_size= [],treshold=threshold)
             ba_graph.run()
-            print(save_path)
             ba_graph.save_graph(save_path)
 
         elif network_type == 'ER':

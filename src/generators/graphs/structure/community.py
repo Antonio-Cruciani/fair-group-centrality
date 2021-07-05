@@ -128,7 +128,7 @@ class community():
             parameters += key + ": " + str(instance['parameters'][key]) + " "
         parameters+="\n"
         keyVal = "# FromNodeId"+"\t"+"ToNodeId"+"\n"
-        f = open(str(instance['graph']) + ".ungraph.txt", "w+")
+        f = open(instance['outPath'] +str(instance['graph']) + ".ungraph.txt", "w+")
         f.write(type)
         f.write(name)
         f.write(nodes)
@@ -139,7 +139,7 @@ class community():
         f.close()
 
         # CommunitiesFile
-        g = open(str(instance['graph']) + ".all.cmty.txt", "w+")
+        g = open(instance['outPath'] +str(instance['graph']) + ".all.cmty.txt", "w+")
         for community in self.communities:
             for u in community:
                 g.write(str(u) + "\t")
