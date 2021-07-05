@@ -4,7 +4,14 @@ import logging
 import time
 import random
 logging.basicConfig(level=logging.DEBUG)
+
+# DEPRECATED !!!!
 class GroupHarmonicCentrality:
+    '''
+       Parameters:
+           G: Networkit Graph
+           k: Size of the fair set S
+    '''
 
     def __init__(self,G,k):
         self.G = G
@@ -27,6 +34,12 @@ class GroupHarmonicCentrality:
     def findsubsets(self,s, k):
         return list(itertools.combinations(s, k))
 
+    '''
+    Method that computes the Harmonic Centrality of a set of nodes in the graph
+    Parameters: 
+            group: list of nodes
+    '''
+
     def HarmonicOfGroup(self,group):
         distances = []
         nk.traversal.Traversal.BFSfrom(self.G, group, lambda u, dist: distances.append(dist))
@@ -39,6 +52,9 @@ class GroupHarmonicCentrality:
 
         return sum(normalized)
 
+    '''
+    TO COMPLETE
+    '''
     def computeGroupsCentralities(self):
         # if(self.S == None):
         #     logging.debug("Computing all the subsets of %r nodes"%(self.k))
@@ -74,7 +90,11 @@ class GroupHarmonicCentrality:
         return self.GHC_max_group
     def get_max_group(self):
         return self.max_group
-
+    '''
+    Parameters: 
+                numberOfSets: number of random sets to sample (without replacement) from the graph G
+    Method that samples without replacement k nodes from the graph.
+    '''
     def sampleS(self,numberOfSets = 1):
         S = []
         for i in range(0,numberOfSets):
@@ -82,6 +102,11 @@ class GroupHarmonicCentrality:
         self.S = S
         self.groups = S
 
+    '''
+    Parameters: 
+                numberOfSets: number of random sets to sample (without replacement) from the graph G
+    Method that samples without replacement k nodes from the graph using the PageRank Algorithm, it gets the k-best nodes.
+    '''
     def samplePageRankS(self,numberOfSets = 1):
         S = []
         for j in range(0,numberOfSets):
@@ -93,7 +118,9 @@ class GroupHarmonicCentrality:
         self.S = S
         self.groups = S
 
-
+    '''
+    Method that gets the k-best nodes with higher degree
+    '''
     def maxDegS(self):
         S = []
         degs = []
