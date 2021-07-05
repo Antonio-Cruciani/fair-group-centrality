@@ -5,10 +5,44 @@ from src.measures.FairHarmonicCentrality import FairGroupHarmonicCentrality,Grou
 from src.generators.graphs.ErdosRenyi import ErdosRenyi
 from src.generators.graphs.BarabasiAlbert import BarabasiAlbert
 from src.generators.graphs.SBM import SBM
+from src.experiments.Harmonic import Harmonic
 sizes = [10,10,10,10,10]
 n = 50
 p = 0.5
 k = 3
+instance = {
+    "type" : "Synthetic",
+
+    "graphs" : [{"name":"Barabasi-Albert",
+            "parameters":{"n":1000,
+                      "k":10,
+            "cs_":"bfs",
+            "c_threshold":3
+            }},
+            {"name":"Barabasi-Albert",
+            "parameters":{"n":10000,
+                      "k":15,
+            "cs_":"bfs",
+            "c_threshold":3
+            }}]
+}
+exp = Harmonic(instance= instance)
+exp.run()
+FGH = FairGroupHarmonicCentrality(exp.get_graphs()[0],exp.get_communities()[0],10)
+FGH.computeGroupsCentralities()
+print("<<<<<<<<<<<<<<<<<<<<<<<<<<")
+print(FGH.get_S())
+
+#FGH.computeFairGroupHarmonicCentrality([GH.get_max_group()] )
+#FGH.sampleInEachCommunity()
+FGH.computeFairGroupHarmonicCentrality()
+OverallHarmonic = FGH.get_GHC_max_group()
+print(OverallHarmonic)
+print("overall HC of S ",OverallHarmonic)
+fairHCentrality = FGH.get_FGHC()
+print(fairHCentrality)
+print(len(fairHCentrality))
+exit(1)
 ba =  BarabasiAlbert(n, k,communities_number = 50,communities_structure = "bfs",communities_size= [],treshold = 40)
 ba.run()
 ba.save_graph()

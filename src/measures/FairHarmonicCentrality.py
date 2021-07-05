@@ -8,12 +8,13 @@ import time
 import random
 logging.basicConfig(level=logging.DEBUG)
 
-'''
-   Parameters:
-       G: Networkit Graph
-       k: Size of the fair set S
-'''
+
 class GroupHarmonicCentrality:
+    '''
+       Parameters:
+           G: Networkit Graph
+           k: Size of the group
+    '''
 
     def __init__(self,G,k):
         self.G = G
@@ -67,8 +68,8 @@ class GroupHarmonicCentrality:
         #     self.groups_centralities.append(self.HarmonicOfGroup(group))
         self.groups_centralities = nk.centrality.GroupHarmonicCloseness(self.G,self.k).run()
 
-
         self.max_group = self.groups_centralities.groupMaxHarmonicCloseness()
+
         self.GHC_max_group = self.groups_centralities.scoreOfGroup(self.G,self.max_group)
         self.S = self.max_group
 
@@ -141,9 +142,17 @@ class GroupHarmonicCentrality:
 
 
 
-
-
+'''
+   Parameters:
+       GroupHarmonicCentrality extend this class
+'''
 class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
+    '''
+       Parameters:
+           G: networkit graph
+           C: list of lists of integers. Each inner list is a community
+           k: size of the fair set S
+    '''
     def __init__(self, G,C, k):
         super().__init__(G, k)
         # Fair Group Harmonic Centrality
@@ -181,7 +190,7 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
     def computeFairGroupHarmonicCentrality(self,S = []):
 
         if(not (S or self.S)):
-            self.compute_groups_centralities()
+            self.computeGroupsCentralities()
 
         else:
             if(S):

@@ -171,15 +171,26 @@ class community():
         f.write(nodes)
         f.write(parameters)
         f.write(keyVal)
+        j = 0
         for edge in self.edges:
-            f.write(str(edge[0])+"\t"+str(edge[1])+"\n")
+            f.write(str(edge[0])+"\t"+str(edge[1]))
+            if(j < len(self.edges)):
+                f.write("\n")
+            j+=1
         f.close()
 
         # CommunitiesFile
         g = open(instance['outPath'] +str(instance['graph']) + ".all.cmty.txt", "w+")
+        j = 0
         for community in self.communities:
+            i = 0
             for u in community:
-                g.write(str(u) + "\t")
-            g.write("\n")
+                g.write(str(u))
+                if(i <len(community)-1):
+                    g.write("\t")
+                i+=1
+            j+=1
+            if(j<len(self.communities)):
+                g.write("\n")
         g.close()
 
