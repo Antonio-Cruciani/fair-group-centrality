@@ -1,10 +1,20 @@
 import random as rnd
 import networkit as nk
 
-
+# Object community that given a networkit graph builds\retrieve communities
 class community():
-
-    def __init__(self, G, structure, size,treshold = None):
+    '''
+    Parameters:
+        G: Networkit Graph
+        structure: String that defines the technique for building the communities
+                   it can have: BFS,RND
+                   If not declared you need to call the community detection method to define the communities.
+        size: List that defines the number of the communities that you want to define.
+              NOTE: in this version 0.1a of the code all the communities are built automatically without the need of the sizes
+              HOW TO USE IT: set size = []
+        threshold: Integer that defines the max number of nodes in each community using the BFS method.
+    '''
+    def __init__(self, G, structure, size,threshold = None):
 
         self.G = G
         self.structure = structure
@@ -14,8 +24,12 @@ class community():
         self.edges = [e for e in self.G.iterEdges()]
         self.communities = []
         self.detectedCommunities = []
-        self.treshold = treshold
+        self.threshold = threshold
 
+    '''
+    Method that calls the community builder method 
+    NOTE: After defining the object call .run() for building the communities.  
+    '''
     def run(self):
         if (self.structure in ['random', 'Random', 'RANDOM']):
             self.assignRandomCommunities()
@@ -23,7 +37,13 @@ class community():
             self.samplingBFSCommunities()
         else:
             self.communities = []
-
+    '''
+    Parameters:
+        algorithm: string value that defines the community detection algorithm to use 
+                    standard: default algorithm used by networkit
+                    plm: uses the plm algorithm
+                    plp: uses the plp algorithm
+    '''
     def communityDetection(self, algorithm="standard"):
         if (algorithm in ['standard', 'Standard', 'STANDARD']):
             communities = nk.community.detectCommunities(self.G)
@@ -34,6 +54,9 @@ class community():
         for setIndex in communities.getSubsetIds():
             self.detectedCommunities.append(list(communities.getMembers(setIndex)))
 
+    '''
+      Method to be checked do not use it
+    '''
     def computeBFSCommunities(self):
 
         nodes = self.nodes
@@ -60,7 +83,9 @@ class community():
                     updates = set(nodes) - set(new_nodes)
                     nodes = list(updates)
                 j += 1
-
+    '''
+    Method that iteratively computes the communities via BFS method
+    '''
     def samplingBFSCommunities(self):
         nodes = self.nodes
         graph = self.G
@@ -70,7 +95,7 @@ class community():
             sorted_by_distance = bfs.getNodesSortedByDistance()
             i = 0
             community = []
-            while(i<self.treshold and i<len(sorted_by_distance)):
+            while(i<self.threshold and i<len(sorted_by_distance)):
                 community.append(sorted_by_distance[i])
                 i+=1
             new_nodes = set(nodes) - set(community)
@@ -81,7 +106,9 @@ class community():
         self.number = len(self.communities)
 
 
-
+    '''
+    Method to be checked do not use it
+    '''
     def computeRandomCommunities(self):
         nodes = self.nodes
         j = 0
@@ -90,7 +117,10 @@ class community():
             new_nodes = set(nodes) - set(self.communities[j])
             nodes = list(new_nodes)
             j += 1
-
+    '''
+    Method that computes random communities.
+    Each node picks a community between 1 and k u.a.r.
+    '''
     def assignRandomCommunities(self):
         for c in range(0,self.number):
             self.communities.append([])
@@ -116,6 +146,13 @@ class community():
     def set_communities(self, communities):
         self.communities = communities
 
+    '''
+    Parameters: dictionary that contains the graph infos.
+                Values:
+                    outPath: output path
+                    graph: graph type
+                    parameters: dictionary of all the parameters of the graph (depends on the type of random graph)
+    '''
     def write_instance(self, instance):
         # EdgeListFile
 
