@@ -55,25 +55,34 @@ class GroupHarmonicCentrality:
         return sum(normalized)
     '''
     Method that computes the Maximum Group Harmonic Closeness of a set of size k using
-    the networkit algorithm
+    the networkit algorithm if S is not set.
+    Otherwise, given the list of groups computed by some heuristic, it computes the Group Harmonic Centrality of each group and stores the best one
     '''
     def computeGroupsCentralities(self):
-        # if(self.S == None):
-        #     logging.debug("Computing all the subsets of %r nodes"%(self.k))
-        #     logging.debug("Advice: get a coffee..")
-        #     start_groups = time.time()
-        #     self.groups = self.findsubsets(self.nodes,self.k)
-        #     end_groups = time.time()
-        #     logging.debug("Elapsed time = %r"%(end_groups-start_groups))
-        #     logging.debug("Number of groups = %r"%(len(self.groups)))
-        # self.groups_centralities = []
-        # for group in self.groups:
-        #     self.groups_centralities.append(self.HarmonicOfGroup(group))
-        self.groups_centralities = nk.centrality.GroupHarmonicCloseness(self.G,self.k).run()
+        if(self.S == None):
+            logging.info("Computing the Group Harmonic Closeness using networkit")
+            start_groups = time.time()
+            self.groups_centralities = nk.centrality.GroupHarmonicCloseness(self.G, self.k).run()
+            end_groups = time.time()
+            logging.debug("Elapsed time = %r"%(end_groups-start_groups))
+            self.max_group = self.groups_centralities.groupMaxHarmonicCloseness()
+            self.GHC_max_group = self.groups_centralities.scoreOfGroup(self.G, self.max_group)
+        else:
+            self.groups_centralities = []
+            for group in self.groups:
+                self.groups_centralities.append(self.HarmonicOfGroup(group))
+            # getting the group of k nodes that maximizes the Group Harmonic Centrality
+            index = 0
+            j = 0
+            maximum = 0
+            for elem in self.groups_centralities:
+                if (elem > maximum):
+                    maximum = elem
+                    index = j
+                j += 1
+            self.max_group = self.groups[index]
+            self.GHC_max_group = self.groups_centralities[index]
 
-        self.max_group = self.groups_centralities.groupMaxHarmonicCloseness()
-
-        self.GHC_max_group = self.groups_centralities.scoreOfGroup(self.G,self.max_group)
         self.S = self.max_group
 
     def get_GHC_max_group(self):
@@ -135,7 +144,8 @@ class GroupHarmonicCentrality:
     def get_groups_centralities(self):
         return(self.groups_centralities)
 
-
+    def set_k(self,k):
+        self.k = k
 
 
 
@@ -164,6 +174,7 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
         # key = key is the index of a community
         # value = each index of the list is the index of a subset of k nodes
         self.FGHC = {}
+        self.GH = None
     '''
     Parameters:
             C: list of nodes that represent a community
@@ -171,7 +182,6 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
     '''
     # Compute the Group Harmonic Centrality between the community and the group
     def HarmonicOfGroupOnSubsets(self,C, group):
-
         nodes = set(C)-set(group)
         distances = []
         for u in nodes:
@@ -220,18 +230,25 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
                     self.FGHC[i].append(GHC)
             i+=1
 
-
+        self.GH = self.HarmonicOfGroupOnSubsets(group, [])
+    def get_GH(self):
+        return self.GH
     def get_FGHC(self):
         return self.FGHC
 
     '''
     Method that randomly build S sampling an element from each community
     '''
+
+
+
     def sampleInEachCommunity(self):
         S = []
         for community in self.communities:
             S.append(random.sample(community, 1)[0])
         self.S = S
+        self.groups = [S]
+
 
     '''
         Method that build S by taking for each community the node that has highest intra-degree
@@ -246,6 +263,7 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
             degs = sorted(degs, key=lambda tup: tup[1], reverse=True)
             S.append(degs[0][0])
         self.S = S
+        self.groups = S
 
     '''
      Method that build S by taking for each community the node with highest intra-harmonic centrality
@@ -292,3 +310,12 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
         for node in  results[0:self.k]:
             selected.append(node[0])
         self.S =selected
+
+    def get_price_of_fairness(self):
+        fairness = self.FGHC.values()
+        if(min(fairness)[0] == 0.0):
+            return(-1)
+        else:
+            return (max(fairness)/min(fairness))
+
+

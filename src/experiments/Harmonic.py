@@ -1,8 +1,11 @@
 import itertools
+import logging
+
 import networkit as nk
 from src.generators.graphs.SBM import SBM
 from src.generators.graphs.ErdosRenyi import ErdosRenyi
 from src.generators.graphs.BarabasiAlbert import BarabasiAlbert
+from src.measures.FairHarmonicCentrality import FairGroupHarmonicCentrality,GroupHarmonicCentrality
 class Harmonic:
     '''
     instance= {
@@ -12,8 +15,11 @@ class Harmonic:
                             "k":,
                             "structure": ,
                             "threshold"; ,
-                            }   }]
-
+                            }   }],
+        experiments = {"mod": rnd\pagerank\maxHitting\classic\maxDeg\sampleInEachCommunity\maxDegreeInEachCommunity\maxHCInEachCommunity,
+                        "Ssize": [ ] ,
+                        "nRun": ,
+                    }
 
      }
     '''
@@ -25,16 +31,100 @@ class Harmonic:
 
 
     def run(self):
-        print(self.instance['type'])
         if(self.instance['type'] in ['synthetic','Synthetic']):
             self.runSynteticExperiments()
+        if(self.instance['type'] in ['real','Real']):
+            self.runRealExperiments()
+        if(self.instance['experiments']['mod'] in ['rnd','random','rd']):
+            fairSetSizes = self.instance['experiments']['sSize']
+            trials = self.instance['experiments']['nRun']
+            results = []
+            communityIndex = 0
+            for graph in self.graphs:
 
+                FGH = FairGroupHarmonicCentrality(graph,self.communities[communityIndex], None)
+
+                for size in fairSetSizes:
+                    FGH.set_k(size)
+                    FGH.sampleS(trials)
+                    FGH.computeGroupsCentralities()
+                    FGH.computeFairGroupHarmonicCentrality(FGH.get_S())
+                    #print("Group that maximizes GHC ",FGH.get_S())
+                    #print("GH ",FGH.get_GHC_max_group())
+                    PoF = FGH.get_price_of_fairness()
+                    logging.debug("Max Group Harmonic Centrality: %r"%FGH.get_GHC_max_group())
+                    if(PoF == -1):
+                        logging.debug("PoF: Undefined")
+                    else:
+                        logging.debug("PoF: %r"%PoF)
+
+        elif(self.instance['experiments']['mod'] in ['pr','PageRank','pagerank']):
+            fairSetSizes = self.instance['experiments']['sSize']
+            trials = self.instance['experiments']['nRun']
+            results = []
+            communityIndex = 0
+            for graph in self.graphs:
+
+                FGH = FairGroupHarmonicCentrality(graph,self.communities[communityIndex], None)
+
+                for size in fairSetSizes:
+                    FGH.set_k(size)
+                    FGH.samplePageRankS(trials)
+                    FGH.computeGroupsCentralities()
+                    FGH.computeFairGroupHarmonicCentrality(FGH.get_S())
+                    #print("Group that maximizes GHC ",FGH.get_S())
+                    #print("GH ",FGH.get_GHC_max_group())
+                    PoF = FGH.get_price_of_fairness()
+                    logging.debug("Max Group Harmonic Centrality: %r"%FGH.get_GHC_max_group())
+                    if(PoF == -1):
+                        logging.debug("PoF: Undefined")
+                    else:
+                        logging.debug("PoF: %r"%PoF)
+        elif (self.instance['experiments']['mod'] in ['sampleInEachCommunity', 'siec']):
+            fairSetSizes = self.instance['experiments']['sSize']
+            trials = self.instance['experiments']['nRun']
+            results = []
+            communityIndex = 0
+            for graph in self.graphs:
+
+                FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
+
+                for size in fairSetSizes:
+                    FGH.set_k(size)
+                    FGH.sampleInEachCommunity()
+                    FGH.computeFairGroupHarmonicCentrality(FGH.get_S())
+                    # print("Group that maximizes GHC ",FGH.get_S())
+                    # print("GH ",FGH.get_GHC_max_group())
+                    PoF = FGH.get_price_of_fairness()
+                    logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
+                    print(len(FGH.get_S()))
+                    if (PoF == -1):
+                        logging.debug("PoF: Undefined")
+                    else:
+                        logging.debug("PoF: %r" % PoF)
+
+    def runRealExperiments(self):
+        logging.info("Loading Communities")
+        communities = []
+        with open(self.instance['inputPathCommunities'], 'r') as f:
+            data = f.read()
+
+            for line in data.split("\n"):
+                community = []
+                for elem in line.split("\t"):
+                    community.append(int(elem))
+                communities.append(community)
+        logging.info("Loading Communities: Completed")
+        logging.info("Loading Graph")
+        self.graphs.append(nk.graphio.SNAPGraphReader().read(self.instance['inputPathGraph']))
+        logging.info("Loading Graph: Completed")
+
+        self.communities.append(communities)
 
     # Method that load the datasets and run the experiments
 
     def runSynteticExperiments(self):
         for elem in self.instance['graphs']:
-
 
             # listOfParameters = []
             #
@@ -84,7 +174,6 @@ class Harmonic:
                 for line in data.split("\n"):
                     community = []
                     for elem in line.split("\t"):
-                        print(elem)
                         community.append(int(elem))
                     communities.append(community)
 

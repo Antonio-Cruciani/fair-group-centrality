@@ -10,7 +10,7 @@ sizes = [10,10,10,10,10]
 n = 50
 p = 0.5
 k = 3
-instance = {
+'''instance = {
     "type" : "Synthetic",
 
     "graphs" : [{"name":"Barabasi-Albert",
@@ -24,10 +24,41 @@ instance = {
                       "k":15,
             "cs_":"bfs",
             "c_threshold":3
-            }}]
+            }}],
+
+    "experiments" : {
+                    "mod": "rnd",
+                    "sSize": [20],
+                    "nRun":10,
+                    }
+}'''
+
+instance = {
+    "type" : "Synthetic",
+
+    "graphs" : [{"name":"Barabasi-Albert",
+            "parameters":{"n":1000,
+                      "k":10,
+            "cs_":"bfs",
+            "c_threshold":3
+            }}],
+
+
+    "experiments" : {
+                    "mod": "siec",
+                    "sSize": [64,128,256,512],
+                    "nRun":100,
+                    }
 }
+
+'''instance = {
+    "type" : "Real",
+    "inputPathGraph": "./datasets/real/dblp/com-dblp.ungraph.txt",
+    "inputPathCommunities": "datasets/real/dblp/com-dblp.all.cmty.txt"
+}'''
 exp = Harmonic(instance= instance)
 exp.run()
+exit(1)
 FGH = FairGroupHarmonicCentrality(exp.get_graphs()[0],exp.get_communities()[0],10)
 FGH.computeGroupsCentralities()
 print("<<<<<<<<<<<<<<<<<<<<<<<<<<")
@@ -35,7 +66,8 @@ print(FGH.get_S())
 
 #FGH.computeFairGroupHarmonicCentrality([GH.get_max_group()] )
 #FGH.sampleInEachCommunity()
-FGH.computeFairGroupHarmonicCentrality()
+#FGH.computeFairGroupHarmonicCentrality()
+FGH.maxHitting()
 OverallHarmonic = FGH.get_GHC_max_group()
 print(OverallHarmonic)
 print("overall HC of S ",OverallHarmonic)
