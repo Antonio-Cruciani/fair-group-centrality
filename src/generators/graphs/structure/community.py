@@ -31,7 +31,7 @@ class community():
     NOTE: After defining the object call .run() for building the communities.  
     '''
     def run(self):
-        if (self.structure in ['random', 'Random', 'RANDOM']):
+        if (self.structure in ['random', 'Random', 'RANDOM','rnd','rd']):
             self.assignRandomCommunities()
         elif (self.structure in ['BFS', 'bfs']):
             self.samplingBFSCommunities()

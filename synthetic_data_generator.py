@@ -1,6 +1,8 @@
 # This module is used to generate the Synthetic datasets with the desired properties
 import src.generators.graphs.NetworkGenerator as ng
 
+
+
 # Generating Barabasi-Albert Graphs....................................................................................
 ng.generate_network(network_type='BA', n=1000, k=10, communities_structure='bfs', threshold=3)
 
