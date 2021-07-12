@@ -36,7 +36,8 @@ class community():
         elif (self.structure in ['BFS', 'bfs']):
             self.samplingBFSCommunities()
         else:
-            self.communities = []
+            print("CIAO")
+            #self.communities = []
     '''
     Parameters:
         algorithm: string value that defines the community detection algorithm to use 
@@ -182,6 +183,7 @@ class community():
         # CommunitiesFile
         g = open(instance['outPath'] +str(instance['graph']) + ".all.cmty.txt", "w+")
         j = 0
+
         for community in self.communities:
             i = 0
             for u in community:

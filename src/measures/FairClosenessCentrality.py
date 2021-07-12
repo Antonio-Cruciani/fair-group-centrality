@@ -9,7 +9,7 @@ import random
 logging.basicConfig(level=logging.DEBUG)
 
 
-class GroupHarmonicCentrality:
+class GroupClosenessCentrality:
     '''
        Parameters:
            G: Networkit Graph
@@ -38,35 +38,28 @@ class GroupHarmonicCentrality:
         return list(itertools.combinations(s, k))
 
     '''
-       Method that computes the Harmonic Centrality of a set of nodes in the graph
+       Method that computes the Closeness Centrality of a set of nodes in the graph
        Parameters: 
                group: list of nodes
     '''
-    def HarmonicOfGroup(self,group):
+    def ClosenessOfGroup(self,group):
         distances = []
         nk.traversal.Traversal.BFSfrom(self.G, group, lambda u, dist: distances.append(dist))
-        normalized = []
-        for dist in distances:
-            if(dist != 0):
-                normalized.append(1./dist)
-            else:
-                normalized.append(0.0)
-
-        return sum(normalized)
+        return self.G.numberOfNodes() / sum(distances)
     '''
-    Method that computes the Maximum Group Harmonic Closeness of a set of size k using
+    Method that computes the Maximum Group Closeness Closeness of a set of size k using
     the networkit algorithm if S is not set.
-    Otherwise, given the list of groups computed by some heuristic, it computes the Group Harmonic Centrality of each group and stores the best one
+    Otherwise, given the list of groups computed by some heuristic, it computes the Group Closeness Centrality of each group and stores the best one
     '''
     def computeGroupsCentralities(self):
         if(self.S == None):
             logging.info("Computing the Group Harmonic Closeness using networkit")
             start_groups = time.time()
-            self.groups_centralities = nk.centrality.GroupHarmonicCloseness(self.G, self.k).run()
+            self.groups_centralities = nk.centrality.GroupCloseness(self.G, self.k).run()
 
             end_groups = time.time()
             logging.debug("Elapsed time = %r"%(end_groups-start_groups))
-            self.max_group = self.groups_centralities.groupMaxHarmonicCloseness()
+            self.max_group = self.groups_centralities.groupMaxCloseness()()
             self.GHC_max_group = self.groups_centralities.scoreOfGroup(self.G, self.max_group)
             #print("GHC = ",self.GHC_max_group)
 
@@ -74,7 +67,7 @@ class GroupHarmonicCentrality:
         else:
             self.groups_centralities = []
             for group in self.groups:
-                self.groups_centralities.append(self.HarmonicOfGroup(group))
+                self.groups_centralities.append(self.ClosenessOfGroup(group))
             # getting the group of k nodes that maximizes the Group Harmonic Centrality
             index = 0
             j = 0
@@ -166,7 +159,7 @@ class GroupHarmonicCentrality:
    Parameters:
        GroupHarmonicCentrality extend this class
 '''
-class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
+class FairGroupClosenessCentrality(GroupClosenessCentrality):
     '''
        Parameters:
            G: networkit graph
@@ -175,7 +168,7 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
     '''
     def __init__(self, G,C, k):
         super().__init__(G, k)
-        # Fair Group Harmonic Centrality
+        # Fair Group Closeness Centrality
         self.communities = C
         # Dictionary <key,value> <---- <int,list>
         # key = key is the index of a community
@@ -187,8 +180,8 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
             C: list of nodes that represent a community
             group: list of nodes that are "central" nodes for which we compute the measure
     '''
-    # Compute the Group Harmonic Centrality between the community and the group
-    def HarmonicOfGroupOnSubsets(self,C, group):
+    # Compute the Group Closeness Centrality between the community and the group
+    def ClosenessOfGroupOnSubsets(self,C, group):
         nodes = set(C)-set(group)
         distances = []
         for u in nodes:
@@ -202,12 +195,12 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
                     min_distance = dist
             if(min_distance >0):
 
-                distances.append(1./min_distance)
+                distances.append(min_distance)
             else:
                 distances.append(0.0)
 
 
-        return(sum(distances))
+        return(len(nodes)/sum(distances))
 
 
     '''
@@ -216,7 +209,7 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
     The method for each community computes all the Fair Group Harmonic Centrality wrt each group of k nodes in S 
     If such set is not given, it computes all the possible subsets of k nodes in the network using the networkit algorithm
     '''
-    def computeFairGroupHarmonicCentrality(self,S = []):
+    def computeFairGroupClosenssCentrality(self,S = []):
 
         if(not (S or self.S)):
             self.computeGroupsCentralities()
@@ -232,15 +225,15 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
 
             self.FGHC[i] = []
             for group in self.groups:
-                GHC = self.HarmonicOfGroupOnSubsets(community,group)
+                GHC = self.ClosenessOfGroupOnSubsets(community,group)
                 #print("len community = ",len(community)," len group = ",len(group)," GHC = ", GHC, " len sett diff = " ,(len((set(community) - set(group)))))
 
                 if(GHC >0):
-                    self.FGHC[i].append(GHC * (1./(len((set(community) - set(group))))))
+                    self.FGHC[i].append(GHC)
                 else:
                     self.FGHC[i].append(GHC)
             i+=1
-        self.GH = self.HarmonicOfGroup(group)
+        self.GH = self.ClosenessOfGroup(group)
         #self.GH = self.HarmonicOfGroupOnSubsets(group, [])
     def get_GH(self):
         return self.GH

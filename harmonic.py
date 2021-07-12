@@ -6,6 +6,7 @@ from src.generators.graphs.ErdosRenyi import ErdosRenyi
 from src.generators.graphs.BarabasiAlbert import BarabasiAlbert
 from src.generators.graphs.SBM import SBM
 from src.experiments.Harmonic import Harmonic
+
 sizes = [10,10,10,10,10]
 n = 50
 p = 0.5
@@ -45,12 +46,30 @@ instance = {
 
 
     "experiments" : {
-                    "mod": "siec",
+                    "mod": "rnd",
                     "sSize": [64,128,256,512],
                     "nRun":100,
                     }
 }
 
+'''instance = {
+    "type" : "Synthetic",
+
+    "graphs" : [{"name":"Erdos-Renyi",
+            "parameters":{"n":1000,
+                    "p":0.3,
+
+            "cs_":"rd",
+            "c":10
+            }}],
+
+
+    "experiments" : {
+                    "mod": "rnd",
+                    "sSize": [64,128,256,512],
+                    "nRun":100,
+                    }
+}'''
 '''instance = {
     "type" : "Real",
     "inputPathGraph": "./datasets/real/dblp/com-dblp.ungraph.txt",
