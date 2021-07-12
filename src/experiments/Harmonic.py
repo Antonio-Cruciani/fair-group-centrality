@@ -1,7 +1,8 @@
 import itertools
 import logging
-
+import json
 import networkit as nk
+import pandas as pd
 from src.generators.graphs.SBM import SBM
 from src.generators.graphs.ErdosRenyi import ErdosRenyi
 from src.generators.graphs.BarabasiAlbert import BarabasiAlbert
@@ -29,6 +30,8 @@ class Harmonic:
         self.graphs = []
         self.communities = []
         self.names = []
+        self.results = []
+        self.node_community_mapping = []
 
     def run(self):
         if(self.instance['type'] in ['synthetic','Synthetic']):
@@ -44,9 +47,9 @@ class Harmonic:
                 result = {'graph' : self.names[communityIndex],
                           'experiments': []}
 
-                FGH = FairGroupHarmonicCentrality(graph,self.communities[communityIndex], None)
-                communityIndex+=1
                 for size in fairSetSizes:
+                    FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
+
                     FGH.set_k(size)
                     FGH.sampleS(trials)
                     FGH.computeGroupsCentralities()
@@ -54,15 +57,28 @@ class Harmonic:
                     #print("Group that maximizes GHC ",FGH.get_S())
                     #print("GH ",FGH.get_GHC_max_group())
                     PoF = FGH.get_price_of_fairness()
-                    result['experiments'].append(FGH)
+                    res = {}
+                    res['type_of_exp'] = self.instance['experiments']['mod']
+                    res['sampling_trials'] = trials
+                    res['fair_set_size'] = len(FGH.get_S())
+                    res['fair_set'] = FGH.get_S()
+                    res['group_harmonic'] = FGH.get_GHC_max_group()
+                    res['PoF'] = FGH.get_price_of_fairness()
+                    res['fair_harmonic_centrality'] = FGH.get_FGHC()
+                    res['communities_dimension'] = FGH.get_communities_size()
+                    res['node_community_mapping'] = self.node_community_mapping[communityIndex]
+
+                    #result['experiments'].append(FGH)
                     logging.debug("Max Group Harmonic Centrality: %r"%FGH.get_GHC_max_group())
                     if(PoF == -1):
                         logging.debug("PoF: Undefined")
                     else:
                         logging.debug("PoF: %r"%PoF)
 
-                results.append(result)
+                    result['experiments'].append(res)
+                communityIndex += 1
 
+                results.append(result)
         elif(self.instance['experiments']['mod'] in ['pr','PageRank','pagerank']):
             fairSetSizes = self.instance['experiments']['sSize']
             trials = self.instance['experiments']['nRun']
@@ -72,21 +88,35 @@ class Harmonic:
                 result = {'graph': self.names[communityIndex],
                           'experiments': []}
 
-                FGH = FairGroupHarmonicCentrality(graph,self.communities[communityIndex], None)
-                communityIndex+=1
 
                 for size in fairSetSizes:
+                    FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
+
                     FGH.set_k(size)
                     FGH.samplePageRankS(trials)
                     FGH.computeGroupsCentralities()
                     FGH.computeFairGroupHarmonicCentrality(FGH.get_S())
                     PoF = FGH.get_price_of_fairness()
-                    result['experiments'].append(FGH)
+                    res = {}
+
+                    res['type_of_exp'] = self.instance['experiments']['mod']
+                    res['sampling_trials'] = trials
+                    res['fair_set_size'] = len(FGH.get_S())
+                    res['fair_set'] = FGH.get_S()
+                    res['group_harmonic'] = FGH.get_GHC_max_group()
+
+                    res['PoF'] = FGH.get_price_of_fairness()
+                    res['fair_harmonic_centrality'] = FGH.get_FGHC()
+                    res['communities_dimension'] = FGH.get_communities_size()
+                    res['node_community_mapping'] = self.node_community_mapping[communityIndex]
+
                     logging.debug("Max Group Harmonic Centrality: %r"%FGH.get_GHC_max_group())
                     if(PoF == -1):
                         logging.debug("PoF: Undefined")
                     else:
                         logging.debug("PoF: %r"%PoF)
+                    result['experiments'].append(res)
+                communityIndex += 1
 
                 results.append(result)
 
@@ -100,21 +130,33 @@ class Harmonic:
                           'experiments': []}
 
                 FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
-                communityIndex+=1
 
                 FGH.sampleInEachCommunity()
                 FGH.computeFairGroupHarmonicCentrality(FGH.get_S())
                 # print("Group that maximizes GHC ",FGH.get_S())
                 # print("GH ",FGH.get_GHC_max_group())
                 PoF = FGH.get_price_of_fairness()
-                result['experiments'].append(FGH)
+                res = {}
+                res['type_of_exp'] = self.instance['experiments']['mod']
+                res['sampling_trials'] = -1
+                res['fair_set_size'] = len(FGH.get_S())
+                res['fair_set'] = FGH.get_S()
+                res['group_harmonic'] = FGH.get_GHC_max_group()
+
+                res['PoF'] = FGH.get_price_of_fairness()
+                res['fair_harmonic_centrality'] = FGH.get_FGHC()
+                res['communities_dimension'] = FGH.get_communities_size()
+                res['node_community_mapping'] = self.node_community_mapping[communityIndex ]
+
                 logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
-                print(len(FGH.get_S()))
                 if (PoF == -1):
                     logging.debug("PoF: Undefined")
                 else:
                     logging.debug("PoF: %r" % PoF)
-            results.append(result)
+                result['experiments'].append(res)
+                communityIndex+=1
+
+                results.append(result)
 
         elif (self.instance['experiments']['mod'] in ['maxHitting', 'MH','mh']):
             fairSetSizes = self.instance['experiments']['sSize']
@@ -125,23 +167,36 @@ class Harmonic:
                 result = {'graph': self.names[communityIndex],
                           'experiments': []}
 
-                FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
-                communityIndex+=1
 
                 for size in fairSetSizes:
+                    FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
+
                     FGH.set_k(size)
                     FGH.maxHitting()
                     FGH.computeFairGroupHarmonicCentrality(FGH.get_S())
                     # print("Group that maximizes GHC ",FGH.get_S())
                     # print("GH ",FGH.get_GHC_max_group())
                     PoF = FGH.get_price_of_fairness()
-                    result['experiments'].append(FGH)
+                    res = {}
+                    res['type_of_exp'] = self.instance['experiments']['mod']
+                    res['sampling_trials'] = -1
+                    res['fair_set_size'] = len(FGH.get_S())
+                    res['fair_set'] = FGH.get_S()
+                    res['group_harmonic'] = FGH.get_GHC_max_group()
+
+                    res['PoF'] = FGH.get_price_of_fairness()
+                    res['fair_harmonic_centrality'] = FGH.get_FGHC()
+                    res['communities_dimension'] = FGH.get_communities_size()
+                    res['node_community_mapping'] = self.node_community_mapping[communityIndex]
+
                     logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
-                    print(len(FGH.get_S()))
                     if (PoF == -1):
                         logging.debug("PoF: Undefined")
                     else:
                         logging.debug("PoF: %r" % PoF)
+                    result['experiments'].append(res)
+                communityIndex+=1
+
                 results.append(result)
 
         elif (self.instance['experiments']['mod'] in ['Classic','classic', 'CL', 'cl']):
@@ -153,10 +208,10 @@ class Harmonic:
                 result = {'graph': self.names[communityIndex],
                           'experiments': []}
 
-                FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
-                communityIndex+=1
 
                 for size in fairSetSizes:
+                    FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
+
                     FGH.set_S(None)
                     FGH.set_k(size)
                     FGH.computeGroupsCentralities()
@@ -165,13 +220,28 @@ class Harmonic:
                     # print("Group that maximizes GHC ",FGH.get_S())
                     # print("GH ",FGH.get_GHC_max_group())
                     PoF = FGH.get_price_of_fairness()
-                    result['experiments'].append(FGH)
+                    res = {}
+                    res['type_of_exp'] = self.instance['experiments']['mod']
+                    res['sampling_trials'] = -1
+                    res['fair_set_size'] = len(FGH.get_S())
+                    res['fair_set'] = FGH.get_S()
+                    res['group_harmonic'] = FGH.get_GHC_max_group()
+
+                    res['PoF'] = FGH.get_price_of_fairness()
+                    res['fair_harmonic_centrality'] = FGH.get_FGHC()
+                    res['communities_dimension'] = FGH.get_communities_size()
+                    res['node_community_mapping'] = self.node_community_mapping[communityIndex]
+
+
                     logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
 
                     if (PoF == -1):
                         logging.debug("PoF: Undefined")
                     else:
                         logging.debug("PoF: %r" % PoF)
+                    result['experiments'].append(res)
+                communityIndex+=1
+
                 results.append(result)
 
         elif (self.instance['experiments']['mod'] in ['maxDeg', 'md', 'MD']):
@@ -183,10 +253,10 @@ class Harmonic:
                 result = {'graph': self.names[communityIndex],
                           'experiments': []}
 
-                FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
-                communityIndex+=1
 
                 for size in fairSetSizes:
+                    FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
+
                     FGH.set_k(size)
                     FGH.maxDegS()
                     FGH.computeGroupsCentralities()
@@ -195,13 +265,26 @@ class Harmonic:
                     # print("Group that maximizes GHC ",FGH.get_S())
                     # print("GH ",FGH.get_GHC_max_group())
                     PoF = FGH.get_price_of_fairness()
-                    result['experiments'].append(FGH)
+                    res = {}
+                    res['type_of_exp'] = self.instance['experiments']['mod']
+                    res['sampling_trials'] = -1
+                    res['fair_set_size'] = len(FGH.get_S())
+                    res['fair_set'] = FGH.get_S()
+                    res['group_harmonic'] = FGH.get_GHC_max_group()
+
+                    res['PoF'] = FGH.get_price_of_fairness()
+                    res['fair_harmonic_centrality'] = FGH.get_FGHC()
+                    res['communities_dimension'] = FGH.get_communities_size()
+                    res['node_community_mapping'] = self.node_community_mapping[communityIndex]
+
                     logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
-                    print(len(FGH.get_S()))
                     if (PoF == -1):
                         logging.debug("PoF: Undefined")
                     else:
                         logging.debug("PoF: %r" % PoF)
+                    result['experiments'].append(res)
+                communityIndex+=1
+
                 results.append(result)
 
 
@@ -215,7 +298,6 @@ class Harmonic:
                           'experiments': []}
 
                 FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
-                communityIndex+=1
 
                 #FGH.set_k(size)
                 FGH.maxDegreeInEachCommunity()
@@ -225,14 +307,27 @@ class Harmonic:
                 # print("Group that maximizes GHC ",FGH.get_S())
                 # print("GH ",FGH.get_GHC_max_group())
                 PoF = FGH.get_price_of_fairness()
-                result['experiments'].append(FGH)
+                res = {}
+                res['type_of_exp'] = self.instance['experiments']['mod']
+                res['sampling_trials'] = -1
+                res['fair_set_size'] = len(FGH.get_S())
+                res['fair_set'] = FGH.get_S()
+                res['group_harmonic'] = FGH.get_GHC_max_group()
+
+                res['PoF'] = FGH.get_price_of_fairness()
+                res['fair_harmonic_centrality'] = FGH.get_FGHC()
+                res['communities_dimension'] = FGH.get_communities_size()
+                res['node_community_mapping'] = self.node_community_mapping[communityIndex]
+
                 logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
-                print(len(FGH.get_S()))
                 if (PoF == -1):
                     logging.debug("PoF: Undefined")
                 else:
                     logging.debug("PoF: %r" % PoF)
-            results.append(result)
+                result['experiments'].append(res)
+                communityIndex+=1
+
+                results.append(result)
 
 
         elif (self.instance['experiments']['mod'] in ['maxHCInEachCommunity', 'mhciec', 'MHCIEC']):
@@ -245,7 +340,6 @@ class Harmonic:
                           'experiments': []}
 
                 FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
-                communityIndex+=1
 
 
                 # FGH.set_k(size)
@@ -256,14 +350,28 @@ class Harmonic:
                 # print("Group that maximizes GHC ",FGH.get_S())
                 # print("GH ",FGH.get_GHC_max_group())
                 PoF = FGH.get_price_of_fairness()
-                result['experiments'].append(FGH)
+                res = {}
+                res['type_of_exp'] = self.instance['experiments']['mod']
+                res['sampling_trials'] = -1
+                res['fair_set_size'] = len(FGH.get_S())
+                res['fair_set'] = FGH.get_S()
+                res['group_harmonic'] = FGH.get_GHC_max_group()
+
+                res['PoF'] = FGH.get_price_of_fairness()
+                res['fair_harmonic_centrality'] = FGH.get_FGHC()
+                res['communities_dimension'] = FGH.get_communities_size()
+                res['node_community_mapping'] = self.node_community_mapping[communityIndex ]
+
                 logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
-                print(len(FGH.get_S()))
                 if (PoF == -1):
                     logging.debug("PoF: Undefined")
                 else:
                     logging.debug("PoF: %r" % PoF)
-            results.append(result)
+                result['experiments'].append(res)
+                communityIndex += 1
+
+                results.append(result)
+        self.results.extend(results)
 
     def runRealExperiments(self):
         logging.info("Loading Communities")
@@ -331,6 +439,8 @@ class Harmonic:
             inputPathGraph = inputPath + name + edgeListName
             inputPathCommunities = inputPath + name + communitiesName
             communities = []
+            index = 0
+            node_community_mapping = {}
             with open(inputPathCommunities, 'r') as f:
                 data = f.read()
 
@@ -338,16 +448,39 @@ class Harmonic:
                     community = []
                     for elem in line.split("\t"):
                         community.append(int(elem))
+                        node_community_mapping[int(elem)] = index
                     communities.append(community)
+                    index +=1
 
             self.graphs.append(nk.graphio.SNAPGraphReader().read(inputPathGraph))
             self.names.append(edgeListName)
             self.communities.append(communities)
+            self.node_community_mapping.append(node_community_mapping)
 
     def get_graphs(self):
         return (self.graphs)
     def get_communities(self):
         return(self.communities)
+    def get_node_community_mapping(self):
+        return (self.node_community_mapping)
+
+    def save_results_to_json(self,path = "./"):
+        with open(path+'data.json', 'w', encoding='utf-8') as f:
+            json.dump(self.results, f, ensure_ascii=False, indent=4)
+
+    def save_results_to_csv(self,path = "./"):
+        for dic in self.results:
+
+            df = pd.DataFrame(dic['experiments'])
+            name = dic['graph'][0:-4]
+            towriteName = ''
+            print(name)
+            for x in name:
+                towriteName+=x
+            df.to_csv(towriteName+'.csv')
+
+        print("TO DO")
+
 
 
 

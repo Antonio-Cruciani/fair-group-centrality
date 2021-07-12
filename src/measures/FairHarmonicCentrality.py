@@ -177,11 +177,24 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
         super().__init__(G, k)
         # Fair Group Harmonic Centrality
         self.communities = C
+        self.communities_size = self.computeCommunitiesSize()
         # Dictionary <key,value> <---- <int,list>
         # key = key is the index of a community
         # value = each index of the list is the index of a subset of k nodes
         self.FGHC = {}
         self.GH = None
+
+    def computeCommunitiesSize(self):
+        index = 0
+        comm = {}
+        for community in self.communities:
+            comm[index] = len(community)
+            index +=1
+        comm
+        return (comm)
+
+    def get_communities_size(self):
+        return (self.communities_size)
     '''
     Parameters:
             C: list of nodes that represent a community

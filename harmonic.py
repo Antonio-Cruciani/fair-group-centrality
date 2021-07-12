@@ -38,16 +38,16 @@ instance = {
     "type" : "Synthetic",
 
     "graphs" : [{"name":"Barabasi-Albert",
-            "parameters":{"n":1000,
-                      "k":10,
+            "parameters":{"n":64,
+                      "k":6.0,
             "cs_":"bfs",
-            "c_threshold":3
+            "c_threshold":6.0
             }}],
 
 
     "experiments" : {
                     "mod": "rnd",
-                    "sSize": [64,128,256,512],
+                    "sSize": [8,16,32],
                     "nRun":100,
                     }
 }
@@ -77,6 +77,8 @@ instance = {
 }'''
 exp = Harmonic(instance= instance)
 exp.run()
+exp.save_results_to_json()
+exp.save_results_to_csv()
 exit(1)
 FGH = FairGroupHarmonicCentrality(exp.get_graphs()[0],exp.get_communities()[0],10)
 FGH.computeGroupsCentralities()
