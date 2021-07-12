@@ -6,6 +6,10 @@ from src.generators.graphs.ErdosRenyi import ErdosRenyi
 from src.generators.graphs.BarabasiAlbert import BarabasiAlbert
 from src.generators.graphs.SBM import SBM
 from src.experiments.Harmonic import Harmonic
+import math as mt
+import time
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 sizes = [10,10,10,10,10]
 n = 50
@@ -33,13 +37,67 @@ k = 3
                     "nRun":10,
                     }
 }'''
+#2048,4096,8192,16384
+nodes = [128,256,512,1024]
+# p for sparse erdos renyi
+epsilon = 0.00005
 
-instance = {
+probs = [0.1,0.2,0.3,0.4,0.5]
+lista = []
+for n in nodes:
+    i = 2
+    j = 2
+    sizes = []
+    while(j< n):
+        sizes.append(j)
+        j = 2**i
+        i+=1
+    instance = {
+        "type": "Synthetic",
+
+        "graphs": [],
+        "experiments": {
+            "mod": "rnd",
+            "sSize": sizes,
+            "nRun": 100,
+        }
+
+    }
+    prib = probs.copy()
+    #prib.extend([(1 - epsilon) * (mt.log(n, 2) / n),(1 + epsilon) * (mt.log(n, 2) / n)])
+    for p in prib:
+        start = time.time()
+        th = mt.log(n,2)
+        instance['graphs'].append(
+            {
+                "name": "Erdos-Renyi",
+                'parameters':{
+                    'n':n,
+                    'p':p,
+                    'cs_':'bfs',
+                    'c_threshold': mt.log(n,2)
+                }
+            }
+        )
+        end = time.time() - start
+
+        logging.info("Define Erdos-Renyi parameters n = %r p = %r technique = bfs threshold = %r elapsed time = %r"%(n,p,th,end))
+    lista.append(instance)
+
+
+'''instance = {
     "type" : "Synthetic",
 
-    "graphs" : [{"name":"Barabasi-Albert",
+    "graphs" : [
+                {"name":"Erdos-Renyi",
             "parameters":{"n":64,
-                      "k":6.0,
+                      "p":0.2,
+            "cs_":"bfs",
+            "c_threshold":6.0
+            }},
+                {"name":"Erdos-Renyi",
+            "parameters":{"n":64,
+                      "p":0.1,
             "cs_":"bfs",
             "c_threshold":6.0
             }}],
@@ -50,7 +108,7 @@ instance = {
                     "sSize": [8,16,32],
                     "nRun":100,
                     }
-}
+}'''
 
 '''instance = {
     "type" : "Synthetic",
@@ -73,12 +131,24 @@ instance = {
 '''instance = {
     "type" : "Real",
     "inputPathGraph": "./datasets/real/dblp/com-dblp.ungraph.txt",
-    "inputPathCommunities": "datasets/real/dblp/com-dblp.all.cmty.txt"
+    "inputPathCommunities": "datasets/real/dblp/com-dblp.all.cmty.txt",
+    "experiments" : {
+                    "mod": "rnd",
+                    "sSize": [64,128,256,512],
+                    "nRun":100,
+                    }
+
 }'''
-exp = Harmonic(instance= instance)
-exp.run()
-exp.save_results_to_json()
-exp.save_results_to_csv()
+i = 0
+for instance in lista:
+    exp = Harmonic(instance= instance)
+    exp.run()
+    n = instance['graphs'][i]['parameters']['n']
+    p = instance['graphs'][i]['parameters']['p']
+    exp.save_results_to_json("./src/outputs/jsons/"+"results_"+instance['graphs'][i]['name']+"_n_"+str(n))
+    i+=1
+    print("ciao")
+    #exp.save_results_to_csv("./src/outputs/csvs/")
 exit(1)
 FGH = FairGroupHarmonicCentrality(exp.get_graphs()[0],exp.get_communities()[0],10)
 FGH.computeGroupsCentralities()

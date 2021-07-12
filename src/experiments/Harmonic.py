@@ -32,6 +32,7 @@ class Harmonic:
         self.names = []
         self.results = []
         self.node_community_mapping = []
+        self.parameters = []
 
     def run(self):
         if(self.instance['type'] in ['synthetic','Synthetic']):
@@ -45,6 +46,7 @@ class Harmonic:
             communityIndex = 0
             for graph in self.graphs:
                 result = {'graph' : self.names[communityIndex],
+                          'parameters': self.parameters[communityIndex],
                           'experiments': []}
 
                 for size in fairSetSizes:
@@ -67,6 +69,9 @@ class Harmonic:
                     res['fair_harmonic_centrality'] = FGH.get_FGHC()
                     res['communities_dimension'] = FGH.get_communities_size()
                     res['node_community_mapping'] = self.node_community_mapping[communityIndex]
+                    res['execution_time'] = FGH.get_overall_time()
+                    res['fair_group_centrality_time'] = FGH.get_exec_time()
+                    res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
 
                     #result['experiments'].append(FGH)
                     logging.debug("Max Group Harmonic Centrality: %r"%FGH.get_GHC_max_group())
@@ -109,6 +114,9 @@ class Harmonic:
                     res['fair_harmonic_centrality'] = FGH.get_FGHC()
                     res['communities_dimension'] = FGH.get_communities_size()
                     res['node_community_mapping'] = self.node_community_mapping[communityIndex]
+                    res['execution_time'] = FGH.get_overall_time()
+                    res['fair_group_centrality_time'] = FGH.get_exec_time()
+                    res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
 
                     logging.debug("Max Group Harmonic Centrality: %r"%FGH.get_GHC_max_group())
                     if(PoF == -1):
@@ -147,7 +155,9 @@ class Harmonic:
                 res['fair_harmonic_centrality'] = FGH.get_FGHC()
                 res['communities_dimension'] = FGH.get_communities_size()
                 res['node_community_mapping'] = self.node_community_mapping[communityIndex ]
-
+                res['execution_time'] = FGH.get_overall_time()
+                res['fair_group_centrality_time'] = FGH.get_exec_time()
+                res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
                 logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
                 if (PoF == -1):
                     logging.debug("PoF: Undefined")
@@ -188,7 +198,9 @@ class Harmonic:
                     res['fair_harmonic_centrality'] = FGH.get_FGHC()
                     res['communities_dimension'] = FGH.get_communities_size()
                     res['node_community_mapping'] = self.node_community_mapping[communityIndex]
-
+                    res['execution_time'] = FGH.get_overall_time()
+                    res['fair_group_centrality_time'] = FGH.get_exec_time()
+                    res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
                     logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
                     if (PoF == -1):
                         logging.debug("PoF: Undefined")
@@ -231,7 +243,9 @@ class Harmonic:
                     res['fair_harmonic_centrality'] = FGH.get_FGHC()
                     res['communities_dimension'] = FGH.get_communities_size()
                     res['node_community_mapping'] = self.node_community_mapping[communityIndex]
-
+                    res['execution_time'] = FGH.get_overall_time()
+                    res['fair_group_centrality_time'] = FGH.get_exec_time()
+                    res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
 
                     logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
 
@@ -276,7 +290,9 @@ class Harmonic:
                     res['fair_harmonic_centrality'] = FGH.get_FGHC()
                     res['communities_dimension'] = FGH.get_communities_size()
                     res['node_community_mapping'] = self.node_community_mapping[communityIndex]
-
+                    res['execution_time'] = FGH.get_overall_time()
+                    res['fair_group_centrality_time'] = FGH.get_exec_time()
+                    res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
                     logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
                     if (PoF == -1):
                         logging.debug("PoF: Undefined")
@@ -318,7 +334,9 @@ class Harmonic:
                 res['fair_harmonic_centrality'] = FGH.get_FGHC()
                 res['communities_dimension'] = FGH.get_communities_size()
                 res['node_community_mapping'] = self.node_community_mapping[communityIndex]
-
+                res['execution_time'] = FGH.get_overall_time()
+                res['fair_group_centrality_time'] = FGH.get_exec_time()
+                res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
                 logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
                 if (PoF == -1):
                     logging.debug("PoF: Undefined")
@@ -361,7 +379,9 @@ class Harmonic:
                 res['fair_harmonic_centrality'] = FGH.get_FGHC()
                 res['communities_dimension'] = FGH.get_communities_size()
                 res['node_community_mapping'] = self.node_community_mapping[communityIndex ]
-
+                res['execution_time'] = FGH.get_overall_time()
+                res['fair_group_centrality_time'] = FGH.get_exec_time()
+                res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
                 logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
                 if (PoF == -1):
                     logging.debug("PoF: Undefined")
@@ -392,7 +412,7 @@ class Harmonic:
         self.names.append(edgeListName)
         self.communities.append(communities)
 
-    # Method that load the datasets and run the experiments
+        # Method that load the datasets and run the experiments
 
     def runSynteticExperiments(self):
         for elem in self.instance['graphs']:
@@ -428,7 +448,8 @@ class Harmonic:
                 if(j<len(elem['parameters'])):
                     name+="/"
                 j+=1
-
+            self.parameters.append(elem['parameters'])
+            #print(elem['parameters'])
             # for para in parametersCombination:
             #     name = ""
             #     j = 0
@@ -457,6 +478,7 @@ class Harmonic:
             self.communities.append(communities)
             self.node_community_mapping.append(node_community_mapping)
 
+
     def get_graphs(self):
         return (self.graphs)
     def get_communities(self):
@@ -465,19 +487,22 @@ class Harmonic:
         return (self.node_community_mapping)
 
     def save_results_to_json(self,path = "./"):
-        with open(path+'data.json', 'w', encoding='utf-8') as f:
+        with open(path, 'w', encoding='utf-8') as f:
             json.dump(self.results, f, ensure_ascii=False, indent=4)
 
     def save_results_to_csv(self,path = "./"):
-        for dic in self.results:
+        lista_to_csv = []
+        for elem in self.results:
+            for exp in elem['experiments']:
+                lista_to_csv.append({**elem['parameters'],**exp})
 
-            df = pd.DataFrame(dic['experiments'])
+        for dic in self.results:
+            df = pd.DataFrame(lista_to_csv)
             name = dic['graph'][0:-4]
             towriteName = ''
-            print(name)
             for x in name:
                 towriteName+=x
-            df.to_csv(towriteName+'.csv')
+            df.to_csv(path+towriteName+'.csv')
 
         print("TO DO")
 

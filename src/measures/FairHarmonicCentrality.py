@@ -60,6 +60,7 @@ class GroupHarmonicCentrality:
     '''
     def computeGroupsCentralities(self):
         if(self.S == None):
+
             logging.info("Computing the Group Harmonic Closeness using networkit")
             start_groups = time.time()
             self.groups_centralities = nk.centrality.GroupHarmonicCloseness(self.G, self.k).run()
@@ -72,6 +73,7 @@ class GroupHarmonicCentrality:
 
 
         else:
+
             self.groups_centralities = []
             for group in self.groups:
                 self.groups_centralities.append(self.HarmonicOfGroup(group))
@@ -183,7 +185,9 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
         # value = each index of the list is the index of a subset of k nodes
         self.FGHC = {}
         self.GH = None
-
+        self.exec_time = None
+        self.time_per_comm = None
+        self.overall_time = None
     def computeCommunitiesSize(self):
         index = 0
         comm = {}
@@ -230,7 +234,7 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
     If such set is not given, it computes all the possible subsets of k nodes in the network using the networkit algorithm
     '''
     def computeFairGroupHarmonicCentrality(self,S = []):
-
+        overall = time.time()
         if(not (S or self.S)):
             self.computeGroupsCentralities()
 
@@ -241,8 +245,10 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
                 self.groups = [self.S]
 
         i = 0
+        start = time.time()
+        time_for_comm = {}
         for community in self.communities:
-
+            start_c = time.time()
             self.FGHC[i] = []
             for group in self.groups:
                 GHC = self.HarmonicOfGroupOnSubsets(community,group)
@@ -252,9 +258,19 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
                     self.FGHC[i].append(GHC * (1./(len((set(community) - set(group))))))
                 else:
                     self.FGHC[i].append(GHC)
+            time_for_comm[i] = time.time()-start_c
             i+=1
+        self.overall_time = time.time() - overall
+        self.exec_time = time.time()-start
         self.GH = self.HarmonicOfGroup(group)
+        self.time_per_comm = time_for_comm
         #self.GH = self.HarmonicOfGroupOnSubsets(group, [])
+    def get_time_per_comm(self):
+        return (self.time_per_comm)
+    def get_exec_time(self):
+        return (self.exec_time)
+    def get_overall_time(self):
+        return (self.overall_time)
     def get_GH(self):
         return self.GH
     def get_FGHC(self):
