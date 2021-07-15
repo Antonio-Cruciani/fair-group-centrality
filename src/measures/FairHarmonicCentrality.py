@@ -206,13 +206,23 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
     '''
     # Compute the Group Harmonic Centrality between the community and the group
     def HarmonicOfGroupOnSubsets(self,C, group):
+        #security_check = set(C).intersection(set(self.nodes))
+
         nodes = set(C)-set(group)
+
         distances = []
+
         for u in nodes:
+            #if(u not in (self.nodes)):
+            #    print("ERRORE NODO ",u, " non presente nel grafo")
+            #print("caio")
+            #print(u)
 
             bfs = nk.distance.BFS(self.G,u).run()
 
             min_distance = 100000000
+            #print("MIAo")
+
             for v in group:
                 dist = bfs.distance(v)
                 if(dist< min_distance):
@@ -222,7 +232,6 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
                 distances.append(1./min_distance)
             else:
                 distances.append(0.0)
-
 
         return(sum(distances))
 
@@ -235,6 +244,7 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
     '''
     def computeFairGroupHarmonicCentrality(self,S = []):
         overall = time.time()
+
         if(not (S or self.S)):
             self.computeGroupsCentralities()
 
@@ -251,7 +261,9 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
             start_c = time.time()
             self.FGHC[i] = []
             for group in self.groups:
+
                 GHC = self.HarmonicOfGroupOnSubsets(community,group)
+
                 #print("len community = ",len(community)," len group = ",len(group)," GHC = ", GHC, " len sett diff = " ,(len((set(community) - set(group)))))
 
                 if(GHC >0):

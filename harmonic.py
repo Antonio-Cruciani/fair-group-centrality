@@ -37,52 +37,376 @@ k = 3
                     "nRun":10,
                     }
 }'''
-#2048,4096,8192,16384
-nodes = [128,256,512,1024]
+# Run Harmonic Experiments on Erdos Renyi graph
+#64,128,256,512,1024,2048,4096,8192,16384
+nodes = [64,128,256,512,1024,2048]
 # p for sparse erdos renyi
 epsilon = 0.00005
 
 probs = [0.1,0.2,0.3,0.4,0.5]
 lista = []
-for n in nodes:
-    i = 2
-    j = 2
-    sizes = []
-    while(j< n):
-        sizes.append(j)
-        j = 2**i
-        i+=1
-    instance = {
-        "type": "Synthetic",
+#techniques = ['rnd','pr','siec','mh','cl','md','mdiec','mhciec']
+techniques =['rnd','pr','siec','mh','cl','md','mdiec','mhciec']
 
-        "graphs": [],
-        "experiments": {
-            "mod": "rnd",
-            "sSize": sizes,
-            "nRun": 100,
+# Erdos-Renyi
+'''for tech in techniques:
+    lista = []
+
+    for n in nodes:
+        i = 2
+        j = 2
+        sizes = []
+        while(j< n):
+            sizes.append(j)
+            j = 2**i
+            i+=1
+        instance = {
+            "type": "Synthetic",
+
+            "graphs": [],
+            "experiments": {
+                "mod": tech,
+                "sSize": sizes,
+                "nRun": 100,
+            }
+
         }
+        prib = probs.copy()
+        prib.extend([(1 - epsilon) * (mt.log(n, 2) / n),(1 + epsilon) * (mt.log(n, 2) / n)])
+        for p in prib:
+            start = time.time()
+            th = mt.log(n,2)
+            instance['graphs'].append(
+                {
+                    "name": "Erdos-Renyi",
+                    'parameters':{
+                        'n':n,
+                        'p':p,
+                        'cs_':'bfs',
+                        'c_threshold': mt.log(n,2)
+                    }
+                }
+            )
+            end = time.time() - start
 
-    }
-    prib = probs.copy()
-    #prib.extend([(1 - epsilon) * (mt.log(n, 2) / n),(1 + epsilon) * (mt.log(n, 2) / n)])
-    for p in prib:
+            logging.info("Define Erdos-Renyi parameters n = %r p = %r technique = bfs threshold = %r elapsed time = %r"%(n,p,th,end))
+        lista.append(instance)
+    i = 0
+    for instance in lista:
         start = time.time()
-        th = mt.log(n,2)
+        exp = Harmonic(instance=instance)
+        exp.run()
+        print(len(lista), i)
+        print(instance['graphs'])
+        n = instance['graphs'][i]['parameters']['n']
+        exp.save_results_to_json(
+            "./src/outputs/jsons/" + "results_" + instance['graphs'][i]['name'] + "_n_" + str(n) + "_exp_" +
+            instance['experiments']['mod'])
+        end = time.time() - start
+
+        logging.info(" Experiment on instance number %r completed! Elapsed time: %r" % (i, end))
+
+        i += 1'''
+# Barabasi-Albert
+'''
+for tech in techniques:
+    lista = []
+    for n in nodes:
+        i = 2
+        j = 2
+        sizes = []
+        while(j< n):
+            sizes.append(j)
+            j = 2**i
+            i+=1
+        instance = {
+            "type": "Synthetic",
+    
+            "graphs": [],
+            "experiments": {
+                "mod": tech,
+                "sSize": sizes,
+                "nRun": 100,
+            }
+    
+        }
+        # Barabasi-Albert
+    
+        start = time.time()
+        th = mt.log(n, 2)
         instance['graphs'].append(
             {
-                "name": "Erdos-Renyi",
-                'parameters':{
-                    'n':n,
-                    'p':p,
-                    'cs_':'bfs',
-                    'c_threshold': mt.log(n,2)
+                "name": "Barabasi-Albert",
+                'parameters': {
+                    'n': n,
+                    'k': th,
+                    'cs_': 'bfs',
+                    'c_threshold': th
+                }
+            }
+        )
+        end = time.time() - start
+    
+        logging.info("Defined Barabasi-Albert n = %r k = %r technique = bfs threshold = %r elapsed time = %r" % (n, th, th,end))
+    
+        lista.append(instance)
+        
+    for instance in lista:
+        start = time.time()
+        exp = Harmonic(instance= instance)
+        exp.run()
+    
+        n = instance['graphs'][0]['parameters']['n']
+        exp.save_results_to_json("./src/outputs/jsons/"+"results_"+instance['graphs'][0]['name']+"_n_"+str(n)+"_exp_"+instance['experiments']['mod'])
+        end = time.time() - start
+    
+        logging.info(" Experiment on instance completed! Elapsed time: %r"%(end))
+            
+        '''
+
+
+# SBM
+for exp_type in techniques:
+    lista = []
+    #exp_type = "mhciec"
+    for n in nodes:
+        q = 0.005
+        p = 0.1
+        i = 2
+        j = 2
+        sizes = []
+        while (j < n):
+            sizes.append(j)
+            j = 2 ** i
+            i += 1
+        instance = {
+            "type": "Synthetic",
+
+            "graphs": [],
+            "experiments": {
+                "mod": exp_type,
+                "sSize": sizes,
+                "nRun": 100,
+            }
+
+        }
+
+        start = time.time()
+        th = mt.log(n, 2)
+        instance['graphs'].append(
+            {
+                "name": "Stochastic-Block-Model",
+                'parameters': {
+                    'n': n,
+                    'p': p,
+                    'q': q,
+                    'cs_': 'rd',
+                    'c': th
                 }
             }
         )
         end = time.time() - start
 
-        logging.info("Define Erdos-Renyi parameters n = %r p = %r technique = bfs threshold = %r elapsed time = %r"%(n,p,th,end))
-    lista.append(instance)
+        logging.info(
+            "Defined SBM n = %r p = %r q = %r technique = rdn communities = %r elapsed time = %r" % (n, p,q, th, end))
+
+        lista.append(instance)
+    for n in nodes:
+        p = 0.2
+        i = 2
+        j = 2
+        sizes = []
+        while (j < n):
+            sizes.append(j)
+            j = 2 ** i
+            i += 1
+        instance = {
+            "type": "Synthetic",
+
+            "graphs": [],
+            "experiments": {
+                "mod": exp_type,
+                "sSize": sizes,
+                "nRun": 100,
+            }
+
+        }
+        for q in [0.05,0.1]:
+
+
+
+            start = time.time()
+            th = mt.log(n, 2)
+            instance['graphs'].append(
+                {
+                    "name": "Stochastic-Block-Model",
+                    'parameters': {
+                        'n': n,
+                        'p': p,
+                        'q': q,
+                        'cs_': 'rd',
+                        'c': th
+                    }
+                }
+            )
+            end = time.time() - start
+
+            logging.info(
+                "Defined SBM n = %r p = %r q = %r technique = rdn communities = %r elapsed time = %r" % (n, p, q, th, end))
+
+        lista.append(instance)
+
+
+    for n in nodes:
+        p = 0.3
+        i = 2
+        j = 2
+        sizes = []
+        while (j < n):
+            sizes.append(j)
+            j = 2 ** i
+            i += 1
+        instance = {
+            "type": "Synthetic",
+
+            "graphs": [],
+            "experiments": {
+                "mod": exp_type,
+                "sSize": sizes,
+                "nRun": 100,
+            }
+
+        }
+        for q in [0.05,0.1,0.2,0.3]:
+
+
+
+            start = time.time()
+            th = mt.log(n, 2)
+            instance['graphs'].append(
+                {
+                    "name": "Stochastic-Block-Model",
+                    'parameters': {
+                        'n': n,
+                        'p': p,
+                        'q': q,
+                        'cs_': 'rd',
+                        'c': th
+                    }
+                }
+            )
+            end = time.time() - start
+
+            logging.info(
+                "Defined SBM n = %r p = %r q = %r technique = rdn communities = %r elapsed time = %r" % (n, p, q, th, end))
+
+        lista.append(instance)
+
+    for n in nodes:
+        p = 0.4
+        i = 2
+        j = 2
+        sizes = []
+        while (j < n):
+            sizes.append(j)
+            j = 2 ** i
+            i += 1
+        instance = {
+            "type": "Synthetic",
+
+            "graphs": [],
+            "experiments": {
+                "mod": exp_type,
+                "sSize": sizes,
+                "nRun": 100,
+            }
+
+        }
+        for q in [0.05,0.1,0.2,0.3]:
+
+
+
+            start = time.time()
+            th = mt.log(n, 2)
+            instance['graphs'].append(
+                {
+                    "name": "Stochastic-Block-Model",
+                    'parameters': {
+                        'n': n,
+                        'p': p,
+                        'q': q,
+                        'cs_': 'rd',
+                        'c': th
+                    }
+                }
+            )
+            end = time.time() - start
+
+            logging.info(
+                "Defined SBM n = %r p = %r q = %r technique = rdn communities = %r elapsed time = %r" % (n, p, q, th, end))
+
+        lista.append(instance)
+
+    for n in nodes:
+        p = 0.5
+        i = 2
+        j = 2
+        sizes = []
+        while (j < n):
+            sizes.append(j)
+            j = 2 ** i
+            i += 1
+        instance = {
+            "type": "Synthetic",
+
+            "graphs": [],
+            "experiments": {
+                "mod": exp_type,
+                "sSize": sizes,
+                "nRun": 100,
+            }
+
+        }
+        for q in [0.05,0.1,0.2,0.3]:
+
+
+            start = time.time()
+            th = mt.log(n, 2)
+            instance['graphs'].append(
+                {
+                    "name": "Stochastic-Block-Model",
+                    'parameters': {
+                        'n': n,
+                        'p': p,
+                        'q': q,
+                        'cs_': 'rd',
+                        'c': th
+                    }
+                }
+            )
+            end = time.time() - start
+
+            logging.info(
+                "Defined SBM n = %r p = %r q = %r technique = rdn communities = %r elapsed time = %r" % (n, p, q, th, end))
+
+        lista.append(instance)
+    i = 0
+    for instance in lista:
+        start = time.time()
+        exp = Harmonic(instance=instance)
+        exp.run()
+        print(instance['graphs'])
+        n = instance['graphs'][0]['parameters']['n']
+        print(n)
+
+        exp.save_results_to_json(
+            "./src/outputs/jsons/" + "results_" + instance['graphs'][0]['name'] + "_n_" + str(n) + "_exp_" +
+            instance['experiments']['mod'])
+        end = time.time() - start
+
+        logging.info(" Experiment on instance completed! Elapsed time: %r" % (end))
+
+        i += 1
 
 
 '''instance = {
@@ -132,24 +456,77 @@ for n in nodes:
     "type" : "Real",
     "inputPathGraph": "./datasets/real/dblp/com-dblp.ungraph.txt",
     "inputPathCommunities": "datasets/real/dblp/com-dblp.all.cmty.txt",
+    "graph":"com-dblp",
     "experiments" : {
                     "mod": "rnd",
-                    "sSize": [64,128,256,512],
+                    "sSize": [64,128,256,512,1024,2048],
                     "nRun":100,
                     }
 
-}'''
-i = 0
+}
+lista.append(instance)'''
+# Erdos Renyi
+'''i = 0
 for instance in lista:
+    start = time.time()
     exp = Harmonic(instance= instance)
     exp.run()
+    print(len(lista),i)
+    print(instance['graphs'])
     n = instance['graphs'][i]['parameters']['n']
-    p = instance['graphs'][i]['parameters']['p']
-    exp.save_results_to_json("./src/outputs/jsons/"+"results_"+instance['graphs'][i]['name']+"_n_"+str(n))
-    i+=1
-    print("ciao")
+    exp.save_results_to_json("./src/outputs/jsons/"+"results_"+instance['graphs'][i]['name']+"_n_"+str(n)+"_exp_"+instance['experiments']['mod'])
+    end = time.time() - start
+
+    logging.info(" Experiment on instance number %r completed! Elapsed time: %r"%(i,end))
+
+    i+=1'''
     #exp.save_results_to_csv("./src/outputs/csvs/")
-exit(1)
+# Barabasi Albert
+
+'''for instance in lista:
+    start = time.time()
+    exp = Harmonic(instance= instance)
+    exp.run()
+
+    n = instance['graphs'][0]['parameters']['n']
+    exp.save_results_to_json("./src/outputs/jsons/"+"results_"+instance['graphs'][0]['name']+"_n_"+str(n)+"_exp_"+instance['experiments']['mod'])
+    end = time.time() - start
+
+    logging.info(" Experiment on instance completed! Elapsed time: %r"%(end))
+'''
+# SBM
+
+'''i =0
+for instance in lista:
+    start = time.time()
+    exp = Harmonic(instance= instance)
+    exp.run()
+    print(instance['graphs'])
+    n = instance['graphs'][0]['parameters']['n']
+    print(n)
+
+    exp.save_results_to_json("./src/outputs/jsons/"+"results_"+instance['graphs'][0]['name']+"_n_"+str(n)+"_exp_"+instance['experiments']['mod'])
+    end = time.time() - start
+
+    logging.info(" Experiment on instance completed! Elapsed time: %r"%(end))
+
+    i+=1
+
+    #exp.save_results_to_csv("./src/outputs/csvs/")'''
+
+#real
+'''for instance in lista:
+    start = time.time()
+    exp = Harmonic(instance= instance)
+    exp.run()
+
+    #n = instance['graphs'][0]['parameters']['n']
+    exp.save_results_to_json("./src/outputs/jsons/"+"results_"+instance['graphs']+"_exp_"+instance['experiments']['mod'])
+    end = time.time() - start
+
+    logging.info(" Experiment on instance completed! Elapsed time: %r"%(end))
+'''
+'''exit(1)
 FGH = FairGroupHarmonicCentrality(exp.get_graphs()[0],exp.get_communities()[0],10)
 FGH.computeGroupsCentralities()
 print("<<<<<<<<<<<<<<<<<<<<<<<<<<")
@@ -252,4 +629,4 @@ print("HARMONIC")
 print(harmonic.topkNodesList())
 print(harmonic.topkScoresList())
 print("KADABRA")
-print(kadabra.ranking()[:10])
+print(kadabra.ranking()[:10])'''

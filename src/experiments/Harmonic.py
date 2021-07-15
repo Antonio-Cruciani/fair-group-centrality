@@ -7,6 +7,7 @@ from src.generators.graphs.SBM import SBM
 from src.generators.graphs.ErdosRenyi import ErdosRenyi
 from src.generators.graphs.BarabasiAlbert import BarabasiAlbert
 from src.measures.FairHarmonicCentrality import FairGroupHarmonicCentrality,GroupHarmonicCentrality
+
 class Harmonic:
     '''
     instance= {
@@ -44,18 +45,21 @@ class Harmonic:
             trials = self.instance['experiments']['nRun']
             results = []
             communityIndex = 0
+
             for graph in self.graphs:
                 result = {'graph' : self.names[communityIndex],
                           'parameters': self.parameters[communityIndex],
+                          'experiment_mod': self.instance['experiments']['mod'],
                           'experiments': []}
-
                 for size in fairSetSizes:
                     FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
 
                     FGH.set_k(size)
                     FGH.sampleS(trials)
                     FGH.computeGroupsCentralities()
+
                     FGH.computeFairGroupHarmonicCentrality(FGH.get_S())
+
                     #print("Group that maximizes GHC ",FGH.get_S())
                     #print("GH ",FGH.get_GHC_max_group())
                     PoF = FGH.get_price_of_fairness()
@@ -74,11 +78,12 @@ class Harmonic:
                     res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
 
                     #result['experiments'].append(FGH)
+                    ''' 
                     logging.debug("Max Group Harmonic Centrality: %r"%FGH.get_GHC_max_group())
                     if(PoF == -1):
                         logging.debug("PoF: Undefined")
                     else:
-                        logging.debug("PoF: %r"%PoF)
+                        logging.debug("PoF: %r"%PoF)'''
 
                     result['experiments'].append(res)
                 communityIndex += 1
@@ -91,6 +96,10 @@ class Harmonic:
             communityIndex = 0
             for graph in self.graphs:
                 result = {'graph': self.names[communityIndex],
+                          'parameters': self.parameters[communityIndex],
+
+                          'experiment_mod': self.instance['experiments']['mod'],
+
                           'experiments': []}
 
 
@@ -118,11 +127,11 @@ class Harmonic:
                     res['fair_group_centrality_time'] = FGH.get_exec_time()
                     res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
 
-                    logging.debug("Max Group Harmonic Centrality: %r"%FGH.get_GHC_max_group())
+                    '''logging.debug("Max Group Harmonic Centrality: %r"%FGH.get_GHC_max_group())
                     if(PoF == -1):
                         logging.debug("PoF: Undefined")
                     else:
-                        logging.debug("PoF: %r"%PoF)
+                        logging.debug("PoF: %r"%PoF)'''
                     result['experiments'].append(res)
                 communityIndex += 1
 
@@ -135,6 +144,10 @@ class Harmonic:
             communityIndex = 0
             for graph in self.graphs:
                 result = {'graph': self.names[communityIndex],
+                          'parameters': self.parameters[communityIndex],
+
+                          'experiment_mod': self.instance['experiments']['mod'],
+
                           'experiments': []}
 
                 FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
@@ -158,11 +171,11 @@ class Harmonic:
                 res['execution_time'] = FGH.get_overall_time()
                 res['fair_group_centrality_time'] = FGH.get_exec_time()
                 res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
-                logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
+                '''logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
                 if (PoF == -1):
                     logging.debug("PoF: Undefined")
                 else:
-                    logging.debug("PoF: %r" % PoF)
+                    logging.debug("PoF: %r" % PoF)'''
                 result['experiments'].append(res)
                 communityIndex+=1
 
@@ -175,6 +188,10 @@ class Harmonic:
             communityIndex = 0
             for graph in self.graphs:
                 result = {'graph': self.names[communityIndex],
+                          'parameters': self.parameters[communityIndex],
+
+                          'experiment_mod': self.instance['experiments']['mod'],
+
                           'experiments': []}
 
 
@@ -201,11 +218,11 @@ class Harmonic:
                     res['execution_time'] = FGH.get_overall_time()
                     res['fair_group_centrality_time'] = FGH.get_exec_time()
                     res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
-                    logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
+                    '''logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
                     if (PoF == -1):
                         logging.debug("PoF: Undefined")
                     else:
-                        logging.debug("PoF: %r" % PoF)
+                        logging.debug("PoF: %r" % PoF)'''
                     result['experiments'].append(res)
                 communityIndex+=1
 
@@ -218,6 +235,10 @@ class Harmonic:
             communityIndex = 0
             for graph in self.graphs:
                 result = {'graph': self.names[communityIndex],
+                          'parameters': self.parameters[communityIndex],
+
+                          'experiment_mod': self.instance['experiments']['mod'],
+
                           'experiments': []}
 
 
@@ -247,12 +268,12 @@ class Harmonic:
                     res['fair_group_centrality_time'] = FGH.get_exec_time()
                     res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
 
-                    logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
+                    '''logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
 
                     if (PoF == -1):
                         logging.debug("PoF: Undefined")
                     else:
-                        logging.debug("PoF: %r" % PoF)
+                        logging.debug("PoF: %r" % PoF)'''
                     result['experiments'].append(res)
                 communityIndex+=1
 
@@ -265,6 +286,10 @@ class Harmonic:
             communityIndex = 0
             for graph in self.graphs:
                 result = {'graph': self.names[communityIndex],
+                          'parameters': self.parameters[communityIndex],
+
+                          'experiment_mod': self.instance['experiments']['mod'],
+
                           'experiments': []}
 
 
@@ -293,11 +318,11 @@ class Harmonic:
                     res['execution_time'] = FGH.get_overall_time()
                     res['fair_group_centrality_time'] = FGH.get_exec_time()
                     res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
-                    logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
+                    '''logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
                     if (PoF == -1):
                         logging.debug("PoF: Undefined")
                     else:
-                        logging.debug("PoF: %r" % PoF)
+                        logging.debug("PoF: %r" % PoF)'''
                     result['experiments'].append(res)
                 communityIndex+=1
 
@@ -311,6 +336,10 @@ class Harmonic:
             communityIndex = 0
             for graph in self.graphs:
                 result = {'graph': self.names[communityIndex],
+                          'parameters': self.parameters[communityIndex],
+
+                          'experiment_mod': self.instance['experiments']['mod'],
+
                           'experiments': []}
 
                 FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
@@ -337,11 +366,12 @@ class Harmonic:
                 res['execution_time'] = FGH.get_overall_time()
                 res['fair_group_centrality_time'] = FGH.get_exec_time()
                 res['fair_group_centrality_community_time'] = FGH.get_time_per_comm()
-                logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
+                '''logging.debug("Group Harmonic Centrality: %r" % FGH.get_GH())
                 if (PoF == -1):
                     logging.debug("PoF: Undefined")
                 else:
-                    logging.debug("PoF: %r" % PoF)
+                    logging.debug("PoF: %r" % PoF)'''
+
                 result['experiments'].append(res)
                 communityIndex+=1
 
@@ -355,6 +385,10 @@ class Harmonic:
             communityIndex = 0
             for graph in self.graphs:
                 result = {'graph': self.names[communityIndex],
+                          'parameters': self.parameters[communityIndex],
+
+                          'experiment_mod': self.instance['experiments']['mod'],
+
                           'experiments': []}
 
                 FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
@@ -406,11 +440,14 @@ class Harmonic:
                 communities.append(community)
         logging.info("Loading Communities: Completed")
         logging.info("Loading Graph")
-        self.graphs.append(nk.graphio.SNAPGraphReader().read(self.instance['inputPathGraph']))
+        self.graphs.append(nk.graphio.EdgeListReader('\t', 0, '#').read(self.instance['inputPathGraph']))
+
+        #self.graphs.append(nk.graphio.SNAPGraphReader().read(self.instance['inputPathGraph']))
         logging.info("Loading Graph: Completed")
         edgeListName = self.instance['inputPathGraph'].split('/')[-1]
         self.names.append(edgeListName)
         self.communities.append(communities)
+        self.parameters.append(" ")
 
         # Method that load the datasets and run the experiments
 
@@ -435,10 +472,10 @@ class Harmonic:
                 inputPath = "datasets/synthetic/barabasi_albert/"
                 edgeListName = "Barabasi-Albert.ungraph.txt"
                 communitiesName = "Barabasi-Albert.all.cmty.txt"
-            elif(elem in ['SBM','sbm']):
+            elif(elem['name'] in ['SBM','sbm','Stochastic-Block-Model']):
                 inputPath = "datasets/synthetic/sbm/"
-                edgeListName = "SBM.ungraph.txt"
-                communitiesName = "SBM.all.cmty.txt"
+                edgeListName = "Stochastic-Block-Model.ungraph.txt"
+                communitiesName = "Stochastic-Block-Model.all.cmty.txt"
 
             parameterKeys =  list(elem['parameters'].keys())
             name = ""
@@ -472,8 +509,8 @@ class Harmonic:
                         node_community_mapping[int(elem)] = index
                     communities.append(community)
                     index +=1
-
-            self.graphs.append(nk.graphio.SNAPGraphReader().read(inputPathGraph))
+            self.graphs.append(nk.graphio.EdgeListReader('\t', 0, '#').read(inputPathGraph))
+            #self.graphs.append(nk.graphio.SNAPGraphReader().read(inputPathGraph))
             self.names.append(edgeListName)
             self.communities.append(communities)
             self.node_community_mapping.append(node_community_mapping)
@@ -487,7 +524,7 @@ class Harmonic:
         return (self.node_community_mapping)
 
     def save_results_to_json(self,path = "./"):
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(path, 'a+', encoding='utf-8') as f:
             json.dump(self.results, f, ensure_ascii=False, indent=4)
 
     def save_results_to_csv(self,path = "./"):
