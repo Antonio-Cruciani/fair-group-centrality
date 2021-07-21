@@ -45,7 +45,10 @@ class GroupClosenessCentrality:
     def ClosenessOfGroup(self,group):
         distances = []
         nk.traversal.Traversal.BFSfrom(self.G, group, lambda u, dist: distances.append(dist))
-        return self.G.numberOfNodes() / sum(distances)
+        if(sum(distances)>0.0):
+            return self.G.numberOfNodes() / sum(distances)
+        else:
+            return 0.0
     '''
     Method that computes the Maximum Group Closeness Closeness of a set of size k using
     the networkit algorithm if S is not set.
@@ -59,8 +62,8 @@ class GroupClosenessCentrality:
 
             end_groups = time.time()
             logging.debug("Elapsed time = %r"%(end_groups-start_groups))
-            self.max_group = self.groups_centralities.groupMaxCloseness()()
-            self.GHC_max_group = self.groups_centralities.scoreOfGroup(self.G, self.max_group)
+            self.max_group = self.groups_centralities.groupMaxCloseness()
+            self.GHC_max_group = self.groups_centralities.scoreOfGroup(self.max_group)
             #print("GHC = ",self.GHC_max_group)
 
 
@@ -170,11 +173,27 @@ class FairGroupClosenessCentrality(GroupClosenessCentrality):
         super().__init__(G, k)
         # Fair Group Closeness Centrality
         self.communities = C
+        self.communities_size = self.computeCommunitiesSize()
+
         # Dictionary <key,value> <---- <int,list>
         # key = key is the index of a community
         # value = each index of the list is the index of a subset of k nodes
-        self.FGHC = {}
+        self.FGCC = {}
         self.GH = None
+        self.exec_time = None
+        self.time_per_comm = None
+        self.overall_time = None
+
+    def computeCommunitiesSize(self):
+        index = 0
+        comm = {}
+        for community in self.communities:
+            comm[index] = len(community)
+            index += 1
+
+        return (comm)
+    def get_communities_size(self):
+        return (self.communities_size)
     '''
     Parameters:
             C: list of nodes that represent a community
@@ -199,8 +218,10 @@ class FairGroupClosenessCentrality(GroupClosenessCentrality):
             else:
                 distances.append(0.0)
 
-
-        return(len(nodes)/sum(distances))
+        if(distances):
+            return(len(nodes)/sum(distances))
+        else:
+            return(0.0)
 
 
     '''
@@ -209,8 +230,8 @@ class FairGroupClosenessCentrality(GroupClosenessCentrality):
     The method for each community computes all the Fair Group Harmonic Centrality wrt each group of k nodes in S 
     If such set is not given, it computes all the possible subsets of k nodes in the network using the networkit algorithm
     '''
-    def computeFairGroupClosenssCentrality(self,S = []):
-
+    def computeFairGroupClosenessCentrality(self,S = []):
+        overall = time.time()
         if(not (S or self.S)):
             self.computeGroupsCentralities()
 
@@ -221,24 +242,43 @@ class FairGroupClosenessCentrality(GroupClosenessCentrality):
                 self.groups = [self.S]
 
         i = 0
+        start = time.time()
+        time_for_comm = {}
         for community in self.communities:
+            start_c = time.time()
 
-            self.FGHC[i] = []
+            self.FGCC[i] = []
             for group in self.groups:
                 GHC = self.ClosenessOfGroupOnSubsets(community,group)
                 #print("len community = ",len(community)," len group = ",len(group)," GHC = ", GHC, " len sett diff = " ,(len((set(community) - set(group)))))
 
                 if(GHC >0):
-                    self.FGHC[i].append(GHC)
+                    self.FGCC[i].append(GHC)
                 else:
-                    self.FGHC[i].append(GHC)
+                    self.FGCC[i].append(GHC)
+            time_for_comm[i] = time.time()-start_c
+
             i+=1
+        self.overall_time = time.time() - overall
+        self.exec_time = time.time()-start
+
         self.GH = self.ClosenessOfGroup(group)
+        self.time_per_comm = time_for_comm
+
         #self.GH = self.HarmonicOfGroupOnSubsets(group, [])
+
+    def get_time_per_comm(self):
+        return (self.time_per_comm)
+
+    def get_exec_time(self):
+        return (self.exec_time)
+
+    def get_overall_time(self):
+        return (self.overall_time)
     def get_GH(self):
         return self.GH
-    def get_FGHC(self):
-        return self.FGHC
+    def get_FGCC(self):
+        return self.FGCC
 
     '''
     Method that randomly build S sampling an element from each community
@@ -317,7 +357,7 @@ class FairGroupClosenessCentrality(GroupClosenessCentrality):
         self.S =selected
 
     def get_price_of_fairness(self):
-        fairness = self.FGHC.values()
+        fairness = self.FGCC.values()
         if(min(fairness)[0] == 0.0):
             return(-1)
         else:

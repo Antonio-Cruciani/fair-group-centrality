@@ -7,6 +7,7 @@ from src.generators.graphs.SBM import SBM
 from src.generators.graphs.ErdosRenyi import ErdosRenyi
 from src.generators.graphs.BarabasiAlbert import BarabasiAlbert
 from src.measures.FairHarmonicCentrality import FairGroupHarmonicCentrality,GroupHarmonicCentrality
+from pathlib import Path
 
 class Harmonic:
     '''
@@ -153,6 +154,7 @@ class Harmonic:
                 FGH = FairGroupHarmonicCentrality(graph, self.communities[communityIndex], None)
 
                 FGH.sampleInEachCommunity()
+                FGH.computeGroupsCentralities()
                 FGH.computeFairGroupHarmonicCentrality(FGH.get_S())
                 # print("Group that maximizes GHC ",FGH.get_S())
                 # print("GH ",FGH.get_GHC_max_group())
@@ -163,6 +165,7 @@ class Harmonic:
                 res['fair_set_size'] = len(FGH.get_S())
                 res['fair_set'] = FGH.get_S()
                 res['group_harmonic'] = FGH.get_GHC_max_group()
+
 
                 res['PoF'] = FGH.get_price_of_fairness()
                 res['fair_harmonic_centrality'] = FGH.get_FGHC()
@@ -200,6 +203,7 @@ class Harmonic:
 
                     FGH.set_k(size)
                     FGH.maxHitting()
+                    FGH.computeGroupsCentralities()
                     FGH.computeFairGroupHarmonicCentrality(FGH.get_S())
                     # print("Group that maximizes GHC ",FGH.get_S())
                     # print("GH ",FGH.get_GHC_max_group())
@@ -524,9 +528,23 @@ class Harmonic:
         return (self.node_community_mapping)
 
     def save_results_to_json(self,path = "./"):
+        if Path(path).is_file():
+            with open(path, 'a+', encoding='utf-8') as f:
+                fileHandle = open(path, "r")
+                lineList = fileHandle.readlines()
+                fileHandle.close()
+                if(lineList[-1] != '['):
+                    f.write(',')
         with open(path, 'a+', encoding='utf-8') as f:
             json.dump(self.results, f, ensure_ascii=False, indent=4)
+    def define_list_of_jsons(self,path):
+        if not Path(path).is_file():
+            with open(path, 'a+', encoding='utf-8') as f:
+                f.write('[')
+    def close_list_of_jsons(self,path):
 
+        with open(path, 'a+', encoding='utf-8') as f:
+            f.write(']')
     def save_results_to_csv(self,path = "./"):
         lista_to_csv = []
         for elem in self.results:

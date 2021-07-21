@@ -9,6 +9,7 @@ from src.experiments.Harmonic import Harmonic
 import math as mt
 import time
 import logging
+from os import walk
 logging.basicConfig(level=logging.DEBUG)
 
 sizes = [10,10,10,10,10]
@@ -39,7 +40,7 @@ k = 3
 }'''
 # Run Harmonic Experiments on Erdos Renyi graph
 #64,128,256,512,1024,2048,4096,8192,16384
-nodes = [64,128,256,512,1024,2048]
+nodes = [4096]
 # p for sparse erdos renyi
 epsilon = 0.00005
 
@@ -49,7 +50,7 @@ lista = []
 techniques =['rnd','pr','siec','mh','cl','md','mdiec','mhciec']
 
 # Erdos-Renyi
-'''for tech in techniques:
+for tech in techniques:
     lista = []
 
     for n in nodes:
@@ -67,7 +68,7 @@ techniques =['rnd','pr','siec','mh','cl','md','mdiec','mhciec']
             "experiments": {
                 "mod": tech,
                 "sSize": sizes,
-                "nRun": 100,
+                "nRun": 10,
             }
 
         }
@@ -106,9 +107,9 @@ techniques =['rnd','pr','siec','mh','cl','md','mdiec','mhciec']
 
         logging.info(" Experiment on instance number %r completed! Elapsed time: %r" % (i, end))
 
-        i += 1'''
+        i += 1
 # Barabasi-Albert
-'''
+
 for tech in techniques:
     lista = []
     for n in nodes:
@@ -126,7 +127,7 @@ for tech in techniques:
             "experiments": {
                 "mod": tech,
                 "sSize": sizes,
-                "nRun": 100,
+                "nRun": 10,
             }
     
         }
@@ -162,7 +163,7 @@ for tech in techniques:
     
         logging.info(" Experiment on instance completed! Elapsed time: %r"%(end))
             
-        '''
+
 
 
 # SBM
@@ -186,7 +187,7 @@ for exp_type in techniques:
             "experiments": {
                 "mod": exp_type,
                 "sSize": sizes,
-                "nRun": 100,
+                "nRun": 10,
             }
 
         }
@@ -390,6 +391,9 @@ for exp_type in techniques:
                 "Defined SBM n = %r p = %r q = %r technique = rdn communities = %r elapsed time = %r" % (n, p, q, th, end))
 
         lista.append(instance)
+
+
+
     i = 0
     for instance in lista:
         start = time.time()
@@ -398,15 +402,29 @@ for exp_type in techniques:
         print(instance['graphs'])
         n = instance['graphs'][0]['parameters']['n']
         print(n)
-
+        exp.define_list_of_jsons(
+            "./src/outputs/jsons/HarmonicCentrality/SBM/" + "results_" + instance['graphs'][0]['name'] + "_n_" + str(
+                n) + "_exp_" +
+            instance['experiments']['mod'])
         exp.save_results_to_json(
-            "./src/outputs/jsons/" + "results_" + instance['graphs'][0]['name'] + "_n_" + str(n) + "_exp_" +
+            "./src/outputs/jsons/HarmonicCentrality/SBM/" + "results_" + instance['graphs'][0]['name'] + "_n_" + str(n) + "_exp_" +
             instance['experiments']['mod'])
         end = time.time() - start
+
 
         logging.info(" Experiment on instance completed! Elapsed time: %r" % (end))
 
         i += 1
+
+f = []
+for (dirpath, dirnames, filenames) in walk("./src/outputs/jsons/HarmonicCentrality/SBM/"):
+    f.extend(filenames)
+    break
+# closing json lists
+for elem in f:
+    with open("./src/outputs/jsons/HarmonicCentrality/SBM/"+elem, 'a+', encoding='utf-8') as f:
+        f.write(']')
+
 
 
 '''instance = {
@@ -452,15 +470,16 @@ for exp_type in techniques:
                     "nRun":100,
                     }
 }'''
-'''instance = {
+'''
+instance = {
     "type" : "Real",
     "inputPathGraph": "./datasets/real/dblp/com-dblp.ungraph.txt",
     "inputPathCommunities": "datasets/real/dblp/com-dblp.all.cmty.txt",
     "graph":"com-dblp",
     "experiments" : {
-                    "mod": "rnd",
-                    "sSize": [64,128,256,512,1024,2048],
-                    "nRun":100,
+                    "mod": "cl",
+                    "sSize": [1024,2048,4096],
+                    "nRun":10,
                     }
 
 }

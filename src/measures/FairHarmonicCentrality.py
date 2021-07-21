@@ -59,6 +59,7 @@ class GroupHarmonicCentrality:
     Otherwise, given the list of groups computed by some heuristic, it computes the Group Harmonic Centrality of each group and stores the best one
     '''
     def computeGroupsCentralities(self):
+
         if(self.S == None):
 
             logging.info("Computing the Group Harmonic Closeness using networkit")
@@ -194,7 +195,7 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
         for community in self.communities:
             comm[index] = len(community)
             index +=1
-        comm
+
         return (comm)
 
     def get_communities_size(self):
@@ -246,12 +247,14 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
         overall = time.time()
 
         if(not (S or self.S)):
+
             self.computeGroupsCentralities()
 
         else:
             if(S):
                 self.groups = [S]
             elif(self.S):
+
                 self.groups = [self.S]
 
         i = 0
@@ -363,6 +366,7 @@ class FairGroupHarmonicCentrality(GroupHarmonicCentrality):
         for node in  results[0:self.k]:
             selected.append(node[0])
         self.S =selected
+        self.groups = [selected]
 
     def get_price_of_fairness(self):
         fairness = self.FGHC.values()
